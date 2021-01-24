@@ -1,6 +1,6 @@
 import axios, { AxiosInstance } from "axios";
 
-export interface Endpoint  extends AxiosInstance {}
+export interface Endpoint extends AxiosInstance {}
 
 const endpoint: Endpoint = axios.create({
     timeout: 60000,

@@ -1,15 +1,15 @@
 export * from "./types";
-export { Presence } from './socket';
-export { default as socket } from './socket';
+export { Presence } from "./socket";
+export { default as socket } from "./socket";
 export { default as endpoint } from "./endpoint";
-import { AxiosResponse } from "axios";
+import axios, { AxiosResponse, CancelTokenSource } from "axios";
 import { io } from "./types";
 import endpoint from "./endpoint";
 
 export type UpdatePreferencesRequest = Partial<io.Preferences>;
 
 export interface FetchChannelsRequest {
-    workspace_id?:  string;
+    workspace_id?: string;
 }
 
 export interface GetWorkspaceRequest {
@@ -457,6 +457,10 @@ export interface Interceptor {
 namespace Client {
     export type Response<T> = Promise<AxiosResponse<T>>;
 
+    export function cancelToken(): CancelTokenSource {
+        return axios.CancelToken.source();
+    }
+
     export function intercept(interceptor: Interceptor) {
         if (interceptor.request) {
             endpoint.interceptors.request.use(interceptor.request);
@@ -469,24 +473,28 @@ namespace Client {
         }
     }
 
-    export function getConfig(){
+    export function getConfig() {
         return endpoint.get(`/config`);
     }
 
-    export function getOrg(){
+    export function getOrg() {
         return endpoint.get(`/org`);
     }
 
-    export function getWorkspace(request: GetWorkspaceRequest): Response<io.Workspace>{
+    export function getWorkspace(
+        request: GetWorkspaceRequest
+    ): Response<io.Workspace> {
         return endpoint.get(`/workspaces/${request.workspace_id}`);
     }
 
-    export function fetchWorkspaces(): Response<io.Workspace[]>{
+    export function fetchWorkspaces(): Response<io.Workspace[]> {
         return endpoint.get(`/workspaces`);
     }
 
-    export function fetchChannels(request: FetchChannelsRequest): Response<io.Channel[]>{
-        if(request.workspace_id){
+    export function fetchChannels(
+        request: FetchChannelsRequest
+    ): Response<io.Channel[]> {
+        if (request.workspace_id) {
             return endpoint.get(`/workspaces/${request.workspace_id}/channels`);
         }
         return endpoint.get(`/channels`);
