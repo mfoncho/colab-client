@@ -1,6 +1,7 @@
 # glob
 syntax: glob
 yarn.lock
+yarn-error.log
 lib/
 package-lock.json
 node_modules/
