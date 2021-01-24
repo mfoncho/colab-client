@@ -7,6 +7,10 @@
         "build": "tsc -p .",
         "test": "yarn test"
     },
+    "prettier": {
+        "tabWidth": 4,
+        "jsxBracketSameLine": true
+    },
     "author": "Mfoncho Che",
     "license": "ISC",
     "dependencies": {
