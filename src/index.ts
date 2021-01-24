@@ -736,6 +736,12 @@ class Client {
         return endpoint.patch(path, params);
     }
 
+    deleteChannelMember(request: DeleteMemberRequest): Response<any> {
+        const path = `/channels/${request.channel_id}/members/${request.member_id}`;
+        return endpoint.delete(path);
+    }
+
+
     deleteMessage(request: DeleteMessageRequest): Response<any> {
         const path = `/channels/${request.channel_id}/threads/${request.thread_id}/messages/${request.message_id}`;
         return endpoint.delete(path);
@@ -748,11 +754,6 @@ class Client {
             markdown: request.markdown,
         };
         return endpoint.patch(path, params);
-    }
-
-    deleteMember(request: DeleteMemberRequest): Response<any> {
-        const path = `/channels/${request.channel_id}/members/${request.member_id}`;
-        return endpoint.delete(path);
     }
 
     fetchArchivedCards(
