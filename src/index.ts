@@ -12,6 +12,26 @@ export interface FetchChannelsRequest {
     workspace_id?: string;
 }
 
+export interface CompleteTaskRequest {
+    task_id: string;
+    channel_id: string;
+}
+
+export interface MarkCardAsDoneRequest {
+    card_id: string;
+    channel_id: string;
+}
+
+export interface MarkCardAsUndoneRequest {
+    card_id: string;
+    channel_id: string;
+}
+
+export interface UncompleteTaskRequest {
+    task_id: string;
+    channel_id: string;
+}
+
 export interface GetWorkspaceRequest {
     workspace_id: string;
 }
@@ -28,12 +48,10 @@ export interface UpdateUserProfileRequest {
 }
 
 export interface SetUserPresenceRequest {
-    user_id: string;
     presence: io.PresenceState;
 }
 
 export interface SetUserStatusRequest {
-    user_id: string;
     status_id: string;
 }
 
@@ -168,7 +186,6 @@ export interface ArchiveColumnRequest {
 
 export interface UpdateTaskRequest {
     name?: string;
-    complete?: boolean;
     task_id: string;
     channel_id: string;
 }
@@ -538,12 +555,12 @@ class Client {
     }
 
     setUserPresence(request: SetUserPresenceRequest): Response<any> {
-        const path = `/users/${request.user_id}/presence/${request.presence}`;
+        const path = `/user/presence/${request.presence}`;
         return endpoint.post(path);
     }
 
     setUserStatus(request: SetUserStatusRequest): Response<io.User> {
-        const path = `/users/${request.user_id}/status/${request.status_id}`;
+        const path = `/user/status/${request.status_id}`;
         return endpoint.post(path);
     }
 
@@ -741,7 +758,6 @@ class Client {
         return endpoint.delete(path);
     }
 
-
     deleteMessage(request: DeleteMessageRequest): Response<any> {
         const path = `/channels/${request.channel_id}/threads/${request.thread_id}/messages/${request.message_id}`;
         return endpoint.delete(path);
@@ -905,8 +921,18 @@ class Client {
 
     updateTask(request: UpdateTaskRequest): Response<io.Task> {
         const path = `/channels/${request.channel_id}/tasks/${request.task_id}`;
-        const params = { name: request.name, complete: request.complete };
+        const params = { name: request.name };
         return endpoint.patch(path, params);
+    }
+
+    completeTask(request: CompleteTaskRequest): Response<io.Task> {
+        const path = `/channels/${request.channel_id}/tasks/${request.task_id}/complete`;
+        return endpoint.put(path);
+    }
+
+    uncompleteTask(request: UncompleteTaskRequest): Response<io.Task> {
+        const path = `/channels/${request.channel_id}/tasks/${request.task_id}/uncomplete`;
+        return endpoint.put(path);
     }
 
     deleteTask(request: DeleteTaskRequest): Response<any> {
@@ -956,12 +982,14 @@ class Client {
         return endpoint.put(path, params);
     }
 
-    markAsDone(request: UpdateCardStatusRequest): Response<io.Card> {
-        const path = `/channels/${request.channel_id}/cards/${request.card_id}`;
-        const params = {
-            done: request.done,
-        };
-        return endpoint.post(path, params);
+    markCardAsDone(request: MarkCardAsDoneRequest): Response<io.Card> {
+        const path = `/channels/${request.channel_id}/cards/${request.card_id}/done`;
+        return endpoint.put(path);
+    }
+
+    markCardAsUndone(request: MarkCardAsUndoneRequest): Response<io.Card> {
+        const path = `/channels/${request.channel_id}/cards/${request.card_id}/undone`;
+        return endpoint.put(path);
     }
 
     updateCard(request: UpdateCardRequest): Response<io.Card> {
