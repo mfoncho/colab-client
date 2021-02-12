@@ -22,6 +22,7 @@
     "dependencies": {
         "@colab/types": "git+https://github.com/mfoncho/colab-types",
         "@types/axios": "^0.14.0",
+        "@types/immutable": "^3.8.7",
         "@types/phoenix": "^1.5.1",
         "axios": "^0.21.1",
         "phoenix": "^1.5.7",
