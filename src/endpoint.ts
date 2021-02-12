@@ -1,15 +1,6 @@
-import axios, { AxiosInstance } from "axios";
-
+import { AxiosInstance, AxiosResponse } from 'axios'
+export { CancelTokenSource, CancelToken } from "axios"
+export { default } from "axios";
+export type EndpointResponse<T=any> = AxiosResponse<T>;
+export type Response<T> = Promise<EndpointResponse<T>>;
 export interface Endpoint extends AxiosInstance {}
-
-const endpoint: Endpoint = axios.create({
-    timeout: 30000,
-    baseURL: `${window.location.origin}/api`,
-    withCredentials: true,
-    headers: {
-        "api-version": "v1",
-        Accept: "application/json",
-    },
-});
-
-export default endpoint;

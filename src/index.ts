@@ -2,9 +2,8 @@ export * from "./types";
 export { Presence } from "./socket";
 export { default as socket } from "./socket";
 export { default as endpoint } from "./endpoint";
-import axios, { AxiosResponse, CancelTokenSource, CancelToken } from "axios";
 import { io } from "./types";
-import endpoint, { Endpoint } from "./endpoint";
+import endpoint, { Endpoint, Response, CancelToken, CancelTokenSource } from "./endpoint";
 
 export type UpdatePreferencesRequest = Partial<io.Preferences>;
 
@@ -471,9 +470,6 @@ export interface Interceptor {
     };
 }
 
-export type Response<T> = Promise<AxiosResponse<T>>;
-
-
 class Client {
     endpoint: Endpoint;
 
@@ -490,7 +486,7 @@ class Client {
     }
 
     cancelToken(): CancelTokenSource {
-        return axios.CancelToken.source();
+        return endpoint.CancelToken.source();
     }
 
     intercept(interceptor: Interceptor) {
@@ -1035,7 +1031,5 @@ class Client {
 }
 
 const client = new Client(endpoint);
-
-let token = client.cancelToken().token
 
 export default client;
