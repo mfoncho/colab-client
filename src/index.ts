@@ -2,9 +2,9 @@ export * from "./types";
 export { Presence } from "./socket";
 export { default as socket } from "./socket";
 export { default as endpoint } from "./endpoint";
-import axios, { AxiosResponse, CancelTokenSource } from "axios";
+import axios, { AxiosResponse, CancelTokenSource, CancelToken } from "axios";
 import { io } from "./types";
-import endpoint from "./endpoint";
+import endpoint, { Endpoint } from "./endpoint";
 
 export type UpdatePreferencesRequest = Partial<io.Preferences>;
 
@@ -473,185 +473,205 @@ export interface Interceptor {
 
 export type Response<T> = Promise<AxiosResponse<T>>;
 
+
 class Client {
+    endpoint: Endpoint;
+
+    constructor(endpoint: Endpoint) {
+        this.endpoint = endpoint;
+    }
+
+    static create(endpoint: Endpoint){
+        return new Client(endpoint);
+    }
+
+    setEndpoint(endpoint: Endpoint){
+        this.endpoint = endpoint;
+    }
+
     cancelToken(): CancelTokenSource {
         return axios.CancelToken.source();
     }
 
     intercept(interceptor: Interceptor) {
         if (interceptor.request) {
-            endpoint.interceptors.request.use(interceptor.request);
+            this.endpoint.interceptors.request.use(interceptor.request);
         }
         if (interceptor.response) {
-            endpoint.interceptors.response.use(
+            this.endpoint.interceptors.response.use(
                 interceptor.response.success,
                 interceptor.response.error
             );
         }
     }
 
-    getConfig() {
-        return endpoint.get(`/config`);
+    getConfig(cancelToken?: CancelToken) {
+        return this.endpoint.get(`/config`, {cancelToken});
     }
 
-    getOrg() {
-        return endpoint.get(`/org`);
+    getOrg(cancelToken?: CancelToken) {
+        return this.endpoint.get(`/org`, {cancelToken});
     }
 
-    getWorkspace(request: GetWorkspaceRequest): Response<io.Workspace> {
-        return endpoint.get(`/workspaces/${request.workspace_id}`);
+    getWorkspace(request: GetWorkspaceRequest, cancelToken?: CancelToken): Response<io.Workspace> {
+        return this.endpoint.get(`/workspaces/${request.workspace_id}`, {cancelToken});
     }
 
-    fetchWorkspaces(): Response<io.Workspace[]> {
-        return endpoint.get(`/workspaces`);
+    fetchWorkspaces(cancelToken?: CancelToken): Response<io.Workspace[]> {
+        return this.endpoint.get(`/workspaces`, {cancelToken});
     }
 
-    fetchChannels(request: FetchChannelsRequest): Response<io.Channel[]> {
+    fetchChannels(request: FetchChannelsRequest, cancelToken?: CancelToken): Response<io.Channel[]> {
         if (request.workspace_id) {
-            return endpoint.get(`/workspaces/${request.workspace_id}/channels`);
+            return this.endpoint.get(
+                `/workspaces/${request.workspace_id}/channels`
+            , {cancelToken});
         }
-        return endpoint.get(`/channels`);
+        return this.endpoint.get(`/channels`, {cancelToken});
     }
 
     fetchChannelInvitations(
         request: FetchChannelInvitations
-    ): Response<io.Invitation[]> {
-        return endpoint.get(`/channels/${request.channel_id}/invitations`);
+    , cancelToken?: CancelToken): Response<io.Invitation[]> {
+        return this.endpoint.get(`/channels/${request.channel_id}/invitations`, {cancelToken});
     }
 
-    deleteInvitation(request: DeleteInvitationRequest): Response<any> {
-        return endpoint.delete(
+    deleteInvitation(request: DeleteInvitationRequest, cancelToken?: CancelToken): Response<any> {
+        return this.endpoint.delete(
             `/channels/${request.channel_id}/invitations/${request.invitation_id}`
-        );
+        , {cancelToken});
     }
 
     sendInvitations(
         request: SendInvitationsRequest
-    ): Response<io.Invitation[]> {
-        return endpoint.post(`/channels/${request.channel_id}/invitations`, {
-            emails: request.emails,
-        });
+    , cancelToken?: CancelToken): Response<io.Invitation[]> {
+        return this.endpoint.post(
+            `/channels/${request.channel_id}/invitations`,
+            {
+                emails: request.emails,
+            }
+        , {cancelToken});
     }
 
-    getPreferences(): Response<io.Preferences> {
-        return endpoint.get("/preferences");
+    getPreferences(cancelToken?: CancelToken): Response<io.Preferences> {
+        return this.endpoint.get("/preferences", {cancelToken});
     }
 
     updatePreferences(
         payload: UpdatePreferencesRequest
-    ): Response<io.Preferences> {
-        return endpoint.patch("/preferences", payload);
+    , cancelToken?: CancelToken): Response<io.Preferences> {
+        return this.endpoint.patch("/preferences", payload, {cancelToken});
     }
 
-    getAuth(): Response<io.User> {
-        return endpoint.get("/auth");
+    getAuth(cancelToken?: CancelToken): Response<io.User> {
+        return this.endpoint.get("/auth", {cancelToken});
     }
 
     updateUserProfile({
         user_id,
         ...params
-    }: UpdateUserProfileRequest): Response<io.User> {
-        return endpoint.patch(`/users/${user_id}`, params);
+    }: UpdateUserProfileRequest, cancelToken?: CancelToken): Response<io.User> {
+        return this.endpoint.patch(`/users/${user_id}`, params, {cancelToken});
     }
 
-    setUserPresence(request: SetUserPresenceRequest): Response<any> {
+    setUserPresence(request: SetUserPresenceRequest, cancelToken?: CancelToken): Response<any> {
         const path = `/user/presence/${request.presence}`;
-        return endpoint.post(path);
+        return this.endpoint.post(path, {cancelToken});
     }
 
-    setUserStatus(request: SetUserStatusRequest): Response<io.User> {
+    setUserStatus(request: SetUserStatusRequest, cancelToken?: CancelToken): Response<io.User> {
         const path = `/user/status/${request.status_id}`;
-        return endpoint.post(path);
+        return this.endpoint.post(path, {cancelToken});
     }
 
-    fetchStatuses(): Response<io.Status[]> {
+    fetchStatuses(cancelToken?: CancelToken): Response<io.Status[]> {
         const path = `/statuses/`;
-        return endpoint.get(path);
+        return this.endpoint.get(path, {cancelToken});
     }
 
-    fetchThreads(): Response<io.Thread[]> {
+    fetchThreads(cancelToken?: CancelToken): Response<io.Thread[]> {
         const path = `/threads`;
-        return endpoint.get(path);
+        return this.endpoint.get(path, {cancelToken});
     }
 
     fetchChannelTopics(
         request: FetchChannelTopicsRequest
-    ): Response<io.Thread[]> {
+    , cancelToken?: CancelToken): Response<io.Thread[]> {
         const path = `/channels/${request.channel_id}/topics`;
-        return endpoint.get(path);
+        return this.endpoint.get(path, {cancelToken});
     }
 
-    fetchMessages(request: FetchMessagesRequest): Response<io.Message[]> {
+    fetchMessages(request: FetchMessagesRequest, cancelToken?: CancelToken): Response<io.Message[]> {
         const { channel_id, thread_id, params } = request;
         const path = `/channels/${channel_id}/threads/${thread_id}/messages`;
-        return endpoint.get(path, { params });
+        return this.endpoint.get(path, { params, cancelToken });
     }
 
-    fetchArchivedChannels(): Response<io.Channel[]> {
+    fetchArchivedChannels(cancelToken?: CancelToken): Response<io.Channel[]> {
         const path = `/archived`;
-        return endpoint.get(path);
+        return this.endpoint.get(path, {cancelToken});
     }
 
-    fetchPublicChannels(): Response<io.Channel[]> {
+    fetchPublicChannels(cancelToken?: CancelToken): Response<io.Channel[]> {
         const path = `/joinable`;
-        return endpoint.get(path);
+        return this.endpoint.get(path, {cancelToken});
     }
 
-    createTopic(request: CreateTopicRequest): Response<io.Thread> {
+    createTopic(request: CreateTopicRequest, cancelToken?: CancelToken): Response<io.Thread> {
         const path = `/channels/${request.channel_id}/topics`;
         const params = {
             topic: request.topic,
         };
-        return endpoint.post(path, params);
+        return this.endpoint.post(path, params, {cancelToken});
     }
 
-    updateTopic(request: UpdateTopicRequest): Response<io.Thread> {
+    updateTopic(request: UpdateTopicRequest, cancelToken?: CancelToken): Response<io.Thread> {
         const path = `/channels/${request.channel_id}/topics/${request.thread_id}`;
         const params = {
             is_active: request.is_active,
             is_default: request.is_default,
             topic: request.topic,
         };
-        return endpoint.patch(path, params);
+        return this.endpoint.patch(path, params, {cancelToken});
     }
 
-    deleteTopic(request: DeleteTopicRequest): Response<any> {
+    deleteTopic(request: DeleteTopicRequest, cancelToken?: CancelToken): Response<any> {
         const path = `/channels/${request.channel_id}/topics/${request.thread_id}`;
-        return endpoint.delete(path);
+        return this.endpoint.delete(path, {cancelToken});
     }
 
-    getChannel(request: GetChannelRequest): Response<io.Channel> {
+    getChannel(request: GetChannelRequest, cancelToken?: CancelToken): Response<io.Channel> {
         const path = `/channels/${request.channel_id}`;
-        return endpoint.get(path);
+        return this.endpoint.get(path, {cancelToken});
     }
 
-    archiveChannel(request: ArchiveChannelRequest): Response<io.Channel> {
+    archiveChannel(request: ArchiveChannelRequest, cancelToken?: CancelToken): Response<io.Channel> {
         const path = `/channels/${request.channel_id}/archive`;
-        return endpoint.put(path);
+        return this.endpoint.put(path, {cancelToken});
     }
 
-    unarchiveChannel(request: UnarchiveChannelRequest) {
+    unarchiveChannel(request: UnarchiveChannelRequest, cancelToken?: CancelToken) {
         const path = `/channels/${request.channel_id}/unarchive`;
-        return endpoint.put(path);
+        return this.endpoint.put(path, {cancelToken});
     }
 
-    reactMessage(request: ReactMessageRequest): Response<io.Message> {
+    reactMessage(request: ReactMessageRequest, cancelToken?: CancelToken): Response<io.Message> {
         const path = `/channels/${request.channel_id}/threads/${request.thread_id}/messages/${request.message_id}/react/${request.name}`;
-        return endpoint.post(path);
+        return this.endpoint.post(path, {cancelToken});
     }
 
-    unreactMessage(request: UnreactMessageRequest): Response<io.Message> {
+    unreactMessage(request: UnreactMessageRequest, cancelToken?: CancelToken): Response<io.Message> {
         const path = `/channels/${request.channel_id}/threads/${request.thread_id}/messages/${request.message_id}/react/${request.name}`;
-        return endpoint.delete(path);
+        return this.endpoint.delete(path, {cancelToken});
     }
     fetchMemberships(
         request: FetchWorkspaceMembershipsRequest
-    ): Response<io.Membership[]> {
+    , cancelToken?: CancelToken): Response<io.Membership[]> {
         const path = `/workspaces/${request.workspace_id}/memberships`;
-        return endpoint.get(path);
+        return this.endpoint.get(path, {cancelToken});
     }
 
-    createChannel(request: CreateChannelRequest): Response<io.Channel> {
+    createChannel(request: CreateChannelRequest, cancelToken?: CancelToken): Response<io.Channel> {
         const path = `/workspaces/${request.workspace_id}/channels`;
         const params = {
             name: request.name,
@@ -660,37 +680,37 @@ class Client {
             is_private: request.is_private,
             is_board: request.is_board,
         };
-        return endpoint.post(path, params);
+        return this.endpoint.post(path, params, {cancelToken});
     }
 
-    loadThread(request: LoadThreadRequest): Response<io.Thread> {
+    loadThread(request: LoadThreadRequest, cancelToken?: CancelToken): Response<io.Thread> {
         const path = `/channels/${request.channel_id}/threads/${request.thread_id}`;
-        return endpoint.get(path);
+        return this.endpoint.get(path, {cancelToken});
     }
 
-    joinChannel(request: JoinChannelRequest): Response<io.Channel> {
+    joinChannel(request: JoinChannelRequest, cancelToken?: CancelToken): Response<io.Channel> {
         const path = `/workspaces/${request.workspace_id}/channels/${request.channel_id}/join`;
-        return endpoint.post(path);
+        return this.endpoint.post(path, {cancelToken});
     }
 
-    updateChannel(request: UpdateChannelRequest): Response<io.Channel> {
+    updateChannel(request: UpdateChannelRequest, cancelToken?: CancelToken): Response<io.Channel> {
         const { channel_id, ...params } = request;
         const path = `/channels/${channel_id}`;
-        return endpoint.patch(path, params);
+        return this.endpoint.patch(path, params, {cancelToken});
     }
 
-    destroy(request: DestroyChannelRequest): Response<any> {
+    destroy(request: DestroyChannelRequest, cancelToken?: CancelToken): Response<any> {
         const path = `/channels/${request.channel_id}`;
-        return endpoint.delete(path);
+        return this.endpoint.delete(path, {cancelToken});
     }
 
-    categorize(request: CategorizeChannelRequest): Response<io.Channel> {
+    categorize(request: CategorizeChannelRequest, cancelToken?: CancelToken): Response<io.Channel> {
         const path = `/channels/${request.channel_id}`;
         const params = { category_id: request.category_id };
-        return endpoint.patch(path, params);
+        return this.endpoint.patch(path, params, {cancelToken});
     }
 
-    postMessage(request: PostMessageRequest): Response<io.Message> {
+    postMessage(request: PostMessageRequest, cancelToken?: CancelToken): Response<io.Message> {
         const path = `/channels/${request.channel_id}/threads/${request.thread_id}/messages`;
         const params = new FormData();
         params.append("text", request.text);
@@ -701,151 +721,151 @@ class Client {
         if (request.markdown == true || request.markdown == false) {
             params.append("markdown", request.markdown ? "1" : "0");
         }
-        return endpoint.post(path, params);
+        return this.endpoint.post(path, params, {cancelToken});
     }
 
     fetchRoles(request: {
         channel_id: string;
-    }): Response<io.ChannelMemberRole[]> {
+    }, cancelToken?: CancelToken): Response<io.ChannelMemberRole[]> {
         const path = `/channels/${request.channel_id}/roles`;
-        return endpoint.get(path);
+        return this.endpoint.get(path, {cancelToken});
     }
 
     fetchChannelMembers(
         request: FetchChannelMembersRequest
-    ): Response<io.Member[]> {
+    , cancelToken?: CancelToken): Response<io.Member[]> {
         const path = `/channels/${request.channel_id}/members`;
-        return endpoint.get(path);
+        return this.endpoint.get(path, {cancelToken});
     }
 
-    pinMessage(request: PinMessageRequest): Response<io.Message> {
+    pinMessage(request: PinMessageRequest, cancelToken?: CancelToken): Response<io.Message> {
         const path = `/channels/${request.channel_id}/threads/${request.thread_id}/messages/${request.message_id}/pin`;
-        return endpoint.put(path);
+        return this.endpoint.put(path, {cancelToken});
     }
 
-    unpinMessage(request: UnpinMessageRequest): Response<io.Message> {
+    unpinMessage(request: UnpinMessageRequest, cancelToken?: CancelToken): Response<io.Message> {
         const path = `/channels/${request.channel_id}/threads/${request.thread_id}/messages/${request.message_id}/pin`;
-        return endpoint.delete(path);
+        return this.endpoint.delete(path, {cancelToken});
     }
 
-    flagMessage(request: FlagMessageRequest): Response<io.Message> {
+    flagMessage(request: FlagMessageRequest, cancelToken?: CancelToken): Response<io.Message> {
         const path = `/channels/${request.channel_id}/threads/${request.thread_id}/messages/${request.message_id}/flag`;
-        return endpoint.put(path);
+        return this.endpoint.put(path, {cancelToken});
     }
 
-    unflagMessage(request: UnflagMessageRequest) {
+    unflagMessage(request: UnflagMessageRequest, cancelToken?: CancelToken): Response<io.Message> {
         const path = `/channels/${request.channel_id}/threads/${request.thread_id}/messages/${request.message_id}/flag`;
-        return endpoint.delete(path);
+        return this.endpoint.delete(path, {cancelToken});
     }
 
-    createChannelMember(request: CreateMemberRequest): Response<io.Member> {
+    createChannelMember(request: CreateMemberRequest, cancelToken?: CancelToken): Response<io.Member> {
         const path = `/channels/${request.channel_id}/members`;
         const params = {
             membership_id: request.membership_id,
             role_id: request.role_id,
         };
-        return endpoint.post(path, params);
+        return this.endpoint.post(path, params, {cancelToken});
     }
 
-    updateChannelMember(request: UpdateMemberRequest): Response<io.Member> {
+    updateChannelMember(request: UpdateMemberRequest, cancelToken?: CancelToken): Response<io.Member> {
         const path = `/channels/${request.channel_id}/members/${request.member_id}`;
         const params = { role_id: request.role_id };
-        return endpoint.patch(path, params);
+        return this.endpoint.patch(path, params, {cancelToken});
     }
 
-    deleteChannelMember(request: DeleteMemberRequest): Response<any> {
+    deleteChannelMember(request: DeleteMemberRequest, cancelToken?: CancelToken): Response<any> {
         const path = `/channels/${request.channel_id}/members/${request.member_id}`;
-        return endpoint.delete(path);
+        return this.endpoint.delete(path, {cancelToken});
     }
 
-    deleteMessage(request: DeleteMessageRequest): Response<any> {
+    deleteMessage(request: DeleteMessageRequest, cancelToken?: CancelToken): Response<any> {
         const path = `/channels/${request.channel_id}/threads/${request.thread_id}/messages/${request.message_id}`;
-        return endpoint.delete(path);
+        return this.endpoint.delete(path, {cancelToken});
     }
 
-    updateMessage(request: UpdateMessageRequest): Response<io.Message> {
+    updateMessage(request: UpdateMessageRequest, cancelToken?: CancelToken): Response<io.Message> {
         const path = `/channels/${request.channel_id}/threads/${request.thread_id}/messages/${request.message_id}`;
         const params = {
             text: request.text,
             markdown: request.markdown,
         };
-        return endpoint.patch(path, params);
+        return this.endpoint.patch(path, params, {cancelToken});
     }
 
     fetchArchivedCards(
         request: FetchArchivedCardsRequest
-    ): Response<io.Card[]> {
+    , cancelToken?: CancelToken): Response<io.Card[]> {
         const path = `/channels/${request.channel_id}/cards?archived`;
-        return endpoint.get(path);
+        return this.endpoint.get(path, {cancelToken});
     }
 
     fetchArchivedColumns(
         request: FetchArchivedColumnsRequest
-    ): Response<io.Column[]> {
+    , cancelToken?: CancelToken): Response<io.Column[]> {
         const path = `/channels/${request.channel_id}/columns?archived`;
-        return endpoint.get(path);
+        return this.endpoint.get(path, {cancelToken});
     }
 
     getChannelPermissions(
         request: GetChannelPermissionsRequest
-    ): Response<io.ChannelPermissions> {
+    , cancelToken?: CancelToken): Response<io.ChannelPermissions> {
         const path = `/channels/${request.channel_id}/roles/${request.role_id}/permissions`;
-        return endpoint.get(path);
+        return this.endpoint.get(path, {cancelToken});
     }
 
     setDefaultRole(
         request: SetChannelDefaultRoleRequest
-    ): Response<io.ChannelRole> {
+    , cancelToken?: CancelToken): Response<io.ChannelRole> {
         const path = `/channels/${request.channel_id}/roles/${request.role_id}/default`;
-        return endpoint.post(path);
+        return this.endpoint.post(path, {cancelToken});
     }
 
     updateRole({
         channel_id,
         role_id,
         ...params
-    }: UpdateChannelRoleRequest): Response<io.ChannelMemberRole> {
+    }: UpdateChannelRoleRequest, cancelToken?: CancelToken): Response<io.ChannelMemberRole> {
         const path = `/channels/${channel_id}/roles/${role_id}`;
-        return endpoint.patch(path, params);
+        return this.endpoint.patch(path, params, {cancelToken});
     }
 
     createRole(
         params: CreateChannelRoleRequest
-    ): Response<io.ChannelMemberRole> {
+    , cancelToken?: CancelToken): Response<io.ChannelMemberRole> {
         const path = `/channels/${params.channel_id}/roles`;
-        return endpoint.post(path, { name: params.name });
+        return this.endpoint.post(path, { name: params.name }, {cancelToken});
     }
 
-    deleteRole(params: DeleteChannelRoleRequest): Response<any> {
+    deleteRole(params: DeleteChannelRoleRequest, cancelToken?: CancelToken): Response<any> {
         const path = `/channels/${params.channel_id}/roles/${params.role_id}`;
-        return endpoint.delete(path);
+        return this.endpoint.delete(path, {cancelToken});
     }
 
     updatePermissions({
         channel_id,
         role_id,
         ...params
-    }: UpdateChannelPermissionsRequest): Response<io.ChannelPermissions> {
+    }: UpdateChannelPermissionsRequest, cancelToken?: CancelToken): Response<io.ChannelPermissions> {
         const path = `/channels/${channel_id}/roles/${role_id}/permissions`;
-        return endpoint.patch(path, params);
+        return this.endpoint.patch(path, params, {cancelToken});
     }
 
-    createTag(request: CreateTagRequest): Response<io.Tag> {
+    createTag(request: CreateTagRequest, cancelToken?: CancelToken): Response<io.Tag> {
         const path = `/channels/${request.channel_id}/tags`;
         const params = { name: request.name, color: request.color };
-        return endpoint.post(path, params);
+        return this.endpoint.post(path, params, {cancelToken});
     }
 
-    deleteTag(params: DeleteTagRequest): Response<any> {
+    deleteTag(params: DeleteTagRequest, cancelToken?: CancelToken): Response<any> {
         const path = `/channels/${params.channel_id}/tags/${params.tag_id}`;
-        return endpoint.delete(path);
+        return this.endpoint.delete(path, {cancelToken});
     }
-    fetchColumns(request: FetchColumnsRequest): Response<io.Column[]> {
+    fetchColumns(request: FetchColumnsRequest, cancelToken?: CancelToken): Response<io.Column[]> {
         const path = `/channels/${request.channel_id}/columns`;
-        return endpoint.get(path);
+        return this.endpoint.get(path, {cancelToken});
     }
 
-    createColumn(request: CreateColumnRequest): Response<io.Column> {
+    createColumn(request: CreateColumnRequest, cancelToken?: CancelToken): Response<io.Column> {
         const path = `/channels/${request.channel_id}/columns`;
         const params = {
             name: request.name,
@@ -853,20 +873,20 @@ class Client {
             origin: request.origin,
             capacity: request.capacity,
         };
-        return endpoint.post(path, params);
+        return this.endpoint.post(path, params, {cancelToken});
     }
 
-    archiveColumn(request: ArchiveColumnRequest): Response<io.Column> {
+    archiveColumn(request: ArchiveColumnRequest, cancelToken?: CancelToken): Response<io.Column> {
         const path = `/channels/${request.channel_id}/columns/${request.column_id}/archive`;
-        return endpoint.post(path);
+        return this.endpoint.post(path, {cancelToken});
     }
 
-    unarchiveColumn(request: ArchiveColumnRequest): Response<io.Column> {
+    unarchiveColumn(request: ArchiveColumnRequest, cancelToken?: CancelToken): Response<io.Column> {
         const path = `/channels/${request.channel_id}/columns/${request.column_id}/unarchive`;
-        return endpoint.post(path);
+        return this.endpoint.post(path, {cancelToken});
     }
 
-    updateColumn(request: UpdateColumnRequest): Response<io.Column> {
+    updateColumn(request: UpdateColumnRequest, cancelToken?: CancelToken): Response<io.Column> {
         const path = `/channels/${request.channel_id}/columns/${request.column_id}`;
         const params = {
             name: request.name,
@@ -874,146 +894,148 @@ class Client {
             origin: request.origin,
             capacity: request.capacity,
         };
-        return endpoint.patch(path, params);
+        return this.endpoint.patch(path, params, {cancelToken});
     }
 
-    moveColumn(request: MoveColumnRequest): Response<io.Column> {
+    moveColumn(request: MoveColumnRequest, cancelToken?: CancelToken): Response<io.Column> {
         const path = `/channels/${request.channel_id}/columns/${request.column_id}/move`;
         const params = {
             position: request.position,
         };
-        return endpoint.put(path, params);
+        return this.endpoint.put(path, params, {cancelToken});
     }
 
-    deleteColumn(request: DeleteColumnRequest): Response<any> {
+    deleteColumn(request: DeleteColumnRequest, cancelToken?: CancelToken): Response<any> {
         const path = `/channels/${request.channel_id}/columns/${request.column_id}`;
-        return endpoint.delete(path);
+        return this.endpoint.delete(path, {cancelToken});
     }
 
-    createChecklist(request: CreateChecklistRequest): Response<io.Checklist> {
+    createChecklist(request: CreateChecklistRequest, cancelToken?: CancelToken): Response<io.Checklist> {
         const path = `/channels/${request.channel_id}/cards/${request.card_id}/checklists`;
         const params = {
             name: request.name,
             member_id: request.member_id,
         };
-        return endpoint.post(path, params);
+        return this.endpoint.post(path, params, {cancelToken});
     }
 
-    updateChecklist(request: UpdateChecklistRequest): Response<io.Checklist> {
+    updateChecklist(request: UpdateChecklistRequest, cancelToken?: CancelToken): Response<io.Checklist> {
         const path = `/channels/${request.channel_id}/checklists/${request.checklist_id}`;
         const params = {
             name: request.name,
             member_id: request.member_id,
         };
-        return endpoint.patch(path, params);
+        return this.endpoint.patch(path, params, {cancelToken});
     }
 
-    deleteChecklist(request: DeleteChecklistRequest): Response<any> {
+    deleteChecklist(request: DeleteChecklistRequest, cancelToken?: CancelToken): Response<any> {
         const path = `/channels/${request.channel_id}/checklists/${request.checklist_id}`;
-        return endpoint.delete(path);
+        return this.endpoint.delete(path, {cancelToken});
     }
 
-    createTask(request: CreateTaskRequest): Response<io.Task> {
+    createTask(request: CreateTaskRequest, cancelToken?: CancelToken): Response<io.Task> {
         const path = `/channels/${request.channel_id}/checklists/${request.checklist_id}/tasks`;
         const params = { name: request.name };
-        return endpoint.post(path, params);
+        return this.endpoint.post(path, params, {cancelToken});
     }
 
-    updateTask(request: UpdateTaskRequest): Response<io.Task> {
+    updateTask(request: UpdateTaskRequest, cancelToken?: CancelToken): Response<io.Task> {
         const path = `/channels/${request.channel_id}/tasks/${request.task_id}`;
         const params = { name: request.name };
-        return endpoint.patch(path, params);
+        return this.endpoint.patch(path, params, {cancelToken});
     }
 
-    completeTask(request: CompleteTaskRequest): Response<io.Task> {
+    completeTask(request: CompleteTaskRequest, cancelToken?: CancelToken): Response<io.Task> {
         const path = `/channels/${request.channel_id}/tasks/${request.task_id}/complete`;
-        return endpoint.put(path);
+        return this.endpoint.put(path, {cancelToken});
     }
 
-    uncompleteTask(request: UncompleteTaskRequest): Response<io.Task> {
+    uncompleteTask(request: UncompleteTaskRequest, cancelToken?: CancelToken): Response<io.Task> {
         const path = `/channels/${request.channel_id}/tasks/${request.task_id}/uncomplete`;
-        return endpoint.put(path);
+        return this.endpoint.put(path, {cancelToken});
     }
 
-    deleteTask(request: DeleteTaskRequest): Response<any> {
+    deleteTask(request: DeleteTaskRequest, cancelToken?: CancelToken): Response<any> {
         const path = `/channels/${request.channel_id}/tasks/${request.task_id}`;
-        return endpoint.delete(path);
+        return this.endpoint.delete(path, {cancelToken});
     }
 
-    fetchCards(request: FetchCardsRequest): Response<io.Card[]> {
+    fetchCards(request: FetchCardsRequest, cancelToken?: CancelToken): Response<io.Card[]> {
         let url: string;
         if (request.column_id != null) {
             url = `/channels/${request.channel_id}/columns/${request.column_id}/cards`;
         } else {
             url = `/channels/${request.channel_id}/cards`;
         }
-        return endpoint.get(url);
+        return this.endpoint.get(url, {cancelToken});
     }
 
-    createCard(payload: CreateCardRequest): Response<io.Card> {
+    createCard(payload: CreateCardRequest, cancelToken?: CancelToken): Response<io.Card> {
         const params = {
             name: payload.name,
             description: payload.description,
         };
         const url = `/channels/${payload.channel_id}/columns/${payload.column_id}/cards`;
-        return endpoint.post(url, params);
+        return this.endpoint.post(url, params, {cancelToken});
     }
 
-    deleteCard(request: DeleteCardRequest): Response<Partial<io.Card>> {
+    deleteCard(request: DeleteCardRequest, cancelToken?: CancelToken): Response<Partial<io.Card>> {
         const url = `/channels/${request.channel_id}/cards/${request.card_id}`;
-        return endpoint.delete(url);
+        return this.endpoint.delete(url, {cancelToken});
     }
 
-    archiveCard(request: ArchiveCardRequest): Response<io.Card> {
+    archiveCard(request: ArchiveCardRequest, cancelToken?: CancelToken): Response<io.Card> {
         const url = `/channels/${request.channel_id}/cards/${request.card_id}/archive`;
-        return endpoint.put(url);
+        return this.endpoint.put(url, {cancelToken});
     }
 
-    unarchiveCard(request: UnarchiveCardRequest) {
-        return this.moveCard(request);
+    unarchiveCard(request: UnarchiveCardRequest, cancelToken?: CancelToken) {
+        return this.moveCard(request, cancelToken);
     }
 
-    moveCard(request: MoveCardRequest): Response<io.Card> {
+    moveCard(request: MoveCardRequest, cancelToken?: CancelToken): Response<io.Card> {
         const params = {
             position: request.position,
             column_id: request.column_id,
         };
         const path = `/channels/${request.channel_id}/cards/${request.card_id}/move`;
-        return endpoint.put(path, params);
+        return this.endpoint.put(path, params, {cancelToken});
     }
 
-    markCardAsDone(request: MarkCardAsDoneRequest): Response<io.Card> {
+    markCardAsDone(request: MarkCardAsDoneRequest, cancelToken?: CancelToken): Response<io.Card> {
         const path = `/channels/${request.channel_id}/cards/${request.card_id}/done`;
-        return endpoint.put(path);
+        return this.endpoint.put(path, {cancelToken});
     }
 
-    markCardAsUndone(request: MarkCardAsUndoneRequest): Response<io.Card> {
+    markCardAsUndone(request: MarkCardAsUndoneRequest, cancelToken?: CancelToken): Response<io.Card> {
         const path = `/channels/${request.channel_id}/cards/${request.card_id}/undone`;
-        return endpoint.put(path);
+        return this.endpoint.put(path, {cancelToken});
     }
 
-    updateCard(request: UpdateCardRequest): Response<io.Card> {
+    updateCard(request: UpdateCardRequest, cancelToken?: CancelToken): Response<io.Card> {
         const path = `/channels/${request.channel_id}/cards/${request.card_id}`;
         const params = {
             name: request.name,
             deadline: request.deadline,
             description: request.description,
         };
-        return endpoint.patch(path, params);
+        return this.endpoint.patch(path, params, {cancelToken});
     }
 
-    tagCard(request: TagCardRequest): Response<io.CardTag> {
+    tagCard(request: TagCardRequest, cancelToken?: CancelToken): Response<io.CardTag> {
         const path = `/channels/${request.channel_id}/cards/${request.card_id}/tags`;
         const params = { tag_id: request.tag_id };
-        return endpoint.put(path, params);
+        return this.endpoint.put(path, params, {cancelToken});
     }
 
-    untagCard(request: UntagCardRequest): Response<string | null> {
+    untagCard(request: UntagCardRequest, cancelToken?: CancelToken): Response<string | null> {
         const path = `/channels/${request.channel_id}/cards/${request.card_id}/tags/${request.tag_id}`;
-        return endpoint.delete(path);
+        return this.endpoint.delete(path, {cancelToken});
     }
 }
 
-const client = new Client();
+const client = new Client(endpoint);
+
+let token = client.cancelToken().token
 
 export default client;
