@@ -1,4 +1,5 @@
 export interface Timestamp extends String {}
+
 export type ColumnType = "stack" | "queue";
 
 export type ThreadType = "main" | "reply" | "card";
@@ -39,14 +40,23 @@ export interface BelongsToWorkspace {
     workspace_id: Id;
 }
 
-
 export namespace io {
-    export type PresenceState = "invisible" |
-        "offline" |
-        "online" |
-        "away" |
-        "busy" |
-        "dnd";
+    export type PresenceState =
+        | "invisible"
+        | "offline"
+        | "online"
+        | "away"
+        | "busy"
+        | "dnd";
+
+    export interface Env {
+        USER_REGISTRATION: boolean;
+        ADMIN_API_VERSION: string;
+        CLIENT_API_VERSION: string;
+        ADMIN_API_ENDPOINT: string;
+        CLIENT_API_ENDPOINT: string;
+        AUTH_PROVIDERS: [[string, string]];
+    }
 
     export interface Invitation extends Unique {
         user: Author;
@@ -167,7 +177,7 @@ export namespace io {
         name: string;
     }
 
-    export interface WorkspacePermissions { }
+    export interface WorkspacePermissions {}
 
     export interface WorkspaceRole extends Unique {
         name: string;
@@ -260,9 +270,9 @@ export namespace io {
 
     export interface Message
         extends Unique,
-        BelongsToThread,
-        BelongsToChannel,
-        Timestamped {
+            BelongsToThread,
+            BelongsToChannel,
+            Timestamped {
         author: Author;
         pinned: boolean;
         content: string;
