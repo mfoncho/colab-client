@@ -501,12 +501,12 @@ class Client {
         }
     }
 
-    getConfig(cancelToken?: CancelToken) {
+    getConfig(cancelToken?: CancelToken): Response<io.Config> {
         return this.endpoint.get(`/config`, {cancelToken});
     }
 
-    getOrg(cancelToken?: CancelToken) {
-        return this.endpoint.get(`/org`, {cancelToken});
+    getSite(cancelToken?: CancelToken) {
+        return this.endpoint.get(`/site`, {cancelToken});
     }
 
     getWorkspace(request: GetWorkspaceRequest, cancelToken?: CancelToken): Response<io.Workspace> {
