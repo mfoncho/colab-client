@@ -49,13 +49,27 @@ export namespace io {
         | "busy"
         | "dnd";
 
-    export interface Env {
-        USER_REGISTRATION: boolean;
-        ADMIN_API_VERSION: string;
-        CLIENT_API_VERSION: string;
-        ADMIN_API_ENDPOINT: string;
-        CLIENT_API_ENDPOINT: string;
-        AUTH_PROVIDERS: [[string, string]];
+    export interface Site {
+        name: string;
+        icon: string;
+        title: string;
+        about: string;
+    }
+
+    export interface Config {
+        token?: string;
+        locale: string;
+        lpack: { [key: string] : string},
+        user_invitation: boolean;
+        user_registration: boolean;
+        admin_api_version: string;
+        client_api_version: string;
+        socket_api_version: string;
+        admin_api_endpoint: string;
+        client_api_endpoint: string;
+        socket_api_endpoint: string;
+        socket_api_protocol: string;
+        auth_providers: [[string, string]];
     }
 
     export interface Invitation extends Unique {
