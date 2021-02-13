@@ -39,7 +39,7 @@ export class Socket {
         return this.base.endPointURL();
     }
 
-    connect(url: string, params: { version: string, token: string}){
+    connect(url: string, params: { version?: string, token: string}){
         this.base.connect(params);
         this.base = new BaseSocket(url,{ 
             vsn: params.version,
