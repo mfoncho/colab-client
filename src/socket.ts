@@ -1,26 +1,13 @@
 export { Presence } from "phoenix";
 import { Socket as BaseSocket, ConnectionState, SocketConnectOption, MessageRef, Channel } from "phoenix";
 
-let config = {
-    path: "/socket",
-    token: "",
-    version: "v1",
-    protocol: "",
-}
-
-export type Config = typeof config
 
 export class Socket {
 
     base : BaseSocket;
 
     constructor(){
-        this.base = new BaseSocket(config.path,{ 
-            vsn: config.version,
-            params: { 
-                token: config.token
-            }
-        });
+        this.base = new BaseSocket("/socket")
     }
 
     getChannel(topic: string){
