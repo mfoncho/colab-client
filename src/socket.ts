@@ -13,24 +13,14 @@ export type Config = typeof config
 export class Socket {
 
     base : BaseSocket;
-    config:  Config;
 
     constructor(){
-        this.config = config;
         this.base = new BaseSocket(config.path,{ 
             vsn: config.version,
             params: { 
                 token: config.token
             }
         });
-    }
-
-    getConfig(){
-        return this.config;
-    }
-
-    setConfig(config: Config){
-        return this.config = config;
     }
 
     getChannel(topic: string){
@@ -49,12 +39,26 @@ export class Socket {
         return this.base.endPointURL();
     }
 
-    connect(params?: any){
+    connect(url: string, params: { version: string, token: string}){
         this.base.connect(params);
+        this.base = new BaseSocket(url,{ 
+            vsn: params.version,
+            params: { 
+                token: params.token
+            }
+        });
         return this;
     }
 
     disconnect(callback?: () => void, code?: number, reason?: string){
+        this.base.disconnect(callback);
+        return this;
+    }
+
+    shutdown(callback?: () => void, code?: number, reason?: string){
+        for (const channel of this.getChannnels()){
+            channel.leave();
+        }
         this.base.disconnect(callback);
         return this;
     }
@@ -117,8 +121,6 @@ export class Socket {
 
 }
 
-let base = new BaseSocket("/socket", {
-    params: { token: (window as any).userToken },
-});
+let base = new Socket;
 
 export default base;
