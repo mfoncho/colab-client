@@ -646,7 +646,7 @@ class Client {
         return this.endpoint.put(path, {cancelToken});
     }
 
-    unarchiveChannel(request: UnarchiveChannelRequest, cancelToken?: CancelToken) {
+    unarchiveChannel(request: UnarchiveChannelRequest, cancelToken?: CancelToken): Response<io.UserChannel> {
         const path = `/channels/${request.channel_id}/unarchive`;
         return this.endpoint.put(path, {cancelToken});
     }
