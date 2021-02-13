@@ -40,13 +40,13 @@ export class Socket {
     }
 
     connect(url: string, params: { version?: string, token: string}){
-        this.base.connect(params);
         this.base = new BaseSocket(url,{ 
             vsn: params.version,
             params: { 
                 token: params.token
             }
         });
+        this.base.connect();
         return this;
     }
 
