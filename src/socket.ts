@@ -1,6 +1,5 @@
 export { Presence } from "phoenix";
 import { Socket as BaseSocket, ConnectionState, SocketConnectOption, MessageRef, Channel } from "phoenix";
-import { version } from "typescript";
 
 let config = {
     path: "/socket",
@@ -19,7 +18,7 @@ export class Socket {
     constructor(){
         this.config = config;
         this.base = new BaseSocket(config.path,{ 
-            vsn: version,
+            vsn: config.version,
             params: { 
                 token: config.token
             }
