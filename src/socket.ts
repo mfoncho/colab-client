@@ -24,10 +24,10 @@ export class Socket {
     }
 
     getChannel(topic: string){
-        return this.getChannnels().find((channel: any) => channel.topic == topic);
+        return this.getChannels().find((channel: any) => channel.topic == topic);
     }
 
-    getChannnels(){
+    getChannels(){
         return (this.base as any).channels as Channel[];
     }
 
@@ -56,7 +56,7 @@ export class Socket {
     }
 
     shutdown(callback?: () => void, code?: number, reason?: string){
-        for (const channel of this.getChannnels()){
+        for (const channel of this.getChannels()){
             channel.leave();
         }
         this.base.disconnect(callback);
