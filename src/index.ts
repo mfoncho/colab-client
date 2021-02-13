@@ -1,7 +1,7 @@
 export * from "./types";
 export { Presence } from "./socket";
 export { default as socket } from "./socket";
-export { default as endpoint } from "./endpoint";
+export { default as endpoint, Endpoint, Response, CancelToken, CancelTokenSource } from "./endpoint";
 import { io } from "./types";
 import endpoint, { Endpoint, Response, CancelToken, CancelTokenSource } from "./endpoint";
 
