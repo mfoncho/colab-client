@@ -505,7 +505,7 @@ class Client {
         return this.endpoint.get(`/config`, {cancelToken});
     }
 
-    getSite(cancelToken?: CancelToken) {
+    getSite(cancelToken?: CancelToken): Response<io.Site> {
         return this.endpoint.get(`/site`, {cancelToken});
     }
 
