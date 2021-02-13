@@ -569,7 +569,7 @@ class Client {
         return this.endpoint.get("/auth", {cancelToken});
     }
 
-    login(params: LoginRequest): Response<io.Config> {
+    login(params: LoginRequest): Response<io.Auth> {
         return this.endpoint.post("/login", params);
     }
 
