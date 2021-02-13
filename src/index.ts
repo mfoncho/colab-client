@@ -35,6 +35,12 @@ export interface GetWorkspaceRequest {
     workspace_id: string;
 }
 
+export interface LoginRequest {
+    email: string;
+    password: string;
+    remember_me?: boolean;
+}
+
 export interface UpdateUserProfileRequest {
     name?: string;
     about?: string;
@@ -561,6 +567,14 @@ class Client {
 
     getAuth(cancelToken?: CancelToken): Response<io.User> {
         return this.endpoint.get("/auth", {cancelToken});
+    }
+
+    login(params: LoginRequest): Response<io.Config> {
+        return this.endpoint.post("/login", params);
+    }
+
+    logout(): Response<any> {
+        return this.endpoint.post("/logout")
     }
 
     updateUserProfile({
