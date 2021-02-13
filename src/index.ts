@@ -570,11 +570,11 @@ class Client {
     }
 
     login(params: LoginRequest): Response<io.Auth> {
-        return this.endpoint.post("/login", params);
+        return this.endpoint.post("/auth/login", params);
     }
 
     logout(): Response<any> {
-        return this.endpoint.post("/logout")
+        return this.endpoint.post("/auth/logout")
     }
 
     updateUserProfile({
