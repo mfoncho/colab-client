@@ -49,6 +49,26 @@ export namespace io {
         | "busy"
         | "dnd";
 
+    export interface ChannelTemplate {
+        id: string;
+        name: string;
+        author: {
+            name: string;
+            email: string;
+        }
+        description: string;
+    }
+
+    export interface WorkspaceTemplate {
+        id: string;
+        name: string;
+        author: {
+            name: string;
+            email: string;
+        }
+        description: string;
+    }
+
     export interface Site {
         name: string;
         icon: string;

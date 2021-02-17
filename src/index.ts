@@ -251,21 +251,9 @@ export interface FetchColumnsRequest {
     channel_id: string;
 }
 
-export interface CreateWorkspaceRequest {
-    name: string;
-    icon?: File;
-    description: string;
-}
-
-export interface UpdateWorkspaceRequest {
-    name?: string;
-    icon?: File;
-    description: string;
-}
-
 export interface CreateMembershipRequest {
+    workspace_id: string;
     user_id: string;
-    role_id: string;
 }
 
 export interface CreateChannelRequest {
@@ -476,6 +464,12 @@ export interface Interceptor {
     };
 }
 
+export interface CreateWorkspaceRequest {
+    name: string;
+    is_home: boolean;
+    template_id: string;
+}
+
 class Client {
     endpoint: Endpoint;
 
@@ -513,6 +507,22 @@ class Client {
 
     getSite(cancelToken?: CancelToken): Response<io.Site> {
         return this.endpoint.get(`/site`, {cancelToken});
+    }
+
+    fetchWorkspaceTemplates(cancelToken?: CancelToken): Response<io.WorkspaceTemplate>{
+        return this.endpoint.get(`/templates/workspaces`, {cancelToken});
+    }
+
+    fetchChannelTemplates(cancelToken?: CancelToken): Response<io.ChannelTemplate>{
+        return this.endpoint.get(`/templates/channels`, {cancelToken});
+    }
+
+    createWorkspace(request: CreateWorkspaceRequest, cancelToken?: CancelToken): Response<io.Workspace>{
+        return this.endpoint.post(`/workspaces`, {...request}, { cancelToken});
+    }
+
+    createMembership(request: CreateMembershipRequest, cancelToken?: CancelToken): Response<io.Membership>{
+        return this.endpoint.put(`/workspaces/${request.workspace_id}/users/${request.user_id}`,{}, { cancelToken});
     }
 
     getWorkspace(request: GetWorkspaceRequest, cancelToken?: CancelToken): Response<io.Workspace> {
