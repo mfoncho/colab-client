@@ -509,12 +509,12 @@ class Client {
         return this.endpoint.get(`/site`, {cancelToken});
     }
 
-    fetchWorkspaceTemplates(cancelToken?: CancelToken): Response<io.WorkspaceTemplate>{
-        return this.endpoint.get(`/templates/workspaces`, {cancelToken});
+    fetchWorkspaceTemplates(cancelToken?: CancelToken): Response<io.WorkspaceTemplate[]>{
+        return this.endpoint.get(`/templates/workspace`, {cancelToken});
     }
 
-    fetchChannelTemplates(cancelToken?: CancelToken): Response<io.ChannelTemplate>{
-        return this.endpoint.get(`/templates/channels`, {cancelToken});
+    fetchChannelTemplates(cancelToken?: CancelToken): Response<io.ChannelTemplate[]>{
+        return this.endpoint.get(`/templates/channel`, {cancelToken});
     }
 
     createWorkspace(request: CreateWorkspaceRequest, cancelToken?: CancelToken): Response<io.Workspace>{
