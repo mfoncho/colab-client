@@ -4,9 +4,11 @@ export type ColumnType = "stack" | "queue";
 
 export type ThreadType = "main" | "reply" | "card" | "topic" | "comment" | "email";
 
-export type SpaceType = "public" | "private" | "direct";
+export type SpaceType = "board" | "discuss";
 
 export type Access = "public" | "private" | "direct";
+
+export type AccessType = Access
 
 export type Id = string;
 
@@ -287,8 +289,8 @@ export namespace io {
         icon: string;
         name: string;
         purpose: string;
-        type: "discucss" | "board";
-        access: "private" | "public" | "direct";
+        type: SpaceType;
+        access: Access;
         created_at: Timestamp;
     }
 
