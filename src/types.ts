@@ -92,14 +92,7 @@ export namespace io {
         about: string;
     }
 
-    export interface Auth {
-        user: User;
-        token: string;
-        timestamp: string;
-    }
-
     export interface Config {
-        client?: Auth;
         locale: string;
         lpack: { [key: string] : string},
         user_invitation: boolean;
@@ -258,6 +251,7 @@ export namespace io {
     export interface Auth {
         user: User;
         role: Role;
+        token: string;
         permissions: Permissions
     }
 
