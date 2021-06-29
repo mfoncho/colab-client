@@ -392,6 +392,24 @@ export interface DeleteInvitationRequest {
     invitation_id: string;
 }
 
+export interface CreateLabelRequest{
+    board_id: string;
+    name: string;
+    color: string;
+}
+
+export interface DeleteLabelRequest{
+    board_id: string;
+    label_id: string;
+}
+
+export interface UpdateLabelRequest{
+    board_id: string;
+    label_id: string;
+    name: string;
+}
+
+
 export interface Interceptor {
     request?: any;
     response?: {
@@ -890,6 +908,27 @@ class Client {
             description: request.description,
         };
         return this.endpoint.patch(path, params, {cancelToken});
+    }
+
+    createLabel(request: CreateLabelRequest, cancelToken?: CancelToken): Response<io.Label>{
+        const path = `/boards/${request.board_id}/labels`;
+        const params = {
+            name: request.name,
+        };
+        return this.endpoint.post(path, params, {cancelToken});
+    }
+
+    updateLabel(request: UpdateLabelRequest, cancelToken?: CancelToken): Response<io.Label>{
+        const path = `/boards/${request.board_id}/labels/${request.label_id}`;
+        const params = {
+            name: request.name,
+        };
+        return this.endpoint.post(path, params, {cancelToken});
+    }
+
+    deleteLabel(request: DeleteLabelRequest, cancelToken?: CancelToken): Response<io.Label>{
+        const path = `/boards/${request.board_id}/labels/${request.label_id}`;
+        return this.endpoint.delete(path, {cancelToken});
     }
 
     labelCard(request: LabelCardRequest, cancelToken?: CancelToken): Response<io.CardLabel> {
