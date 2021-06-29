@@ -4,7 +4,7 @@ export type ColumnType = "stack" | "queue";
 
 export type ThreadType = "main" | "reply" | "card";
 
-export type ChannelType = "public" | "private" | "direct";
+export type SpaceType = "public" | "private" | "direct";
 
 export type Id = string;
 
@@ -32,8 +32,12 @@ export interface BelongsToThread {
     thread_id: Id;
 }
 
-export interface BelongsToChannel {
-    channel_id: Id;
+export interface BelongsToBoard {
+    board_id: Id;
+}
+
+export interface BelongsToSpace {
+    space_id: Id;
 }
 
 export interface BelongsToWorkspace {
@@ -49,23 +53,31 @@ export namespace io {
         | "busy"
         | "dnd";
 
-    export interface ChannelTemplate {
+    export interface BoardTemplate {
         id: string;
         name: string;
+        type: "board";
         author: {
             name: string;
             email: string;
-        }
+        };
+        board: {
+            name: string;
+            columns: any[];
+        };
+        topics: any[];
         description: string;
     }
 
-    export interface WorkspaceTemplate {
+    export interface DiscussTemplate {
         id: string;
         name: string;
+        type: "board";
         author: {
             name: string;
             email: string;
-        }
+        };
+        topics: any[];
         description: string;
     }
 
@@ -104,7 +116,7 @@ export namespace io {
         email: string;
         approved: boolean;
         timestamp: string;
-        channel_id: string;
+        space_id: string;
         invitee?: Author;
         resolver?: Author;
         resolved_at?: string;
@@ -145,8 +157,8 @@ export namespace io {
     export interface Reaction {
         name: string;
         user: Author;
-        timestamp: string;
         message_id: string;
+        created_at: Timestamp;
     }
 
     export interface User extends Author {
@@ -166,21 +178,21 @@ export namespace io {
         timestamp: string;
     }
 
-    export interface Tag extends Unique {
+    export interface Label extends Unique {
         name: string;
         color: string;
     }
 
-    export interface CardTag extends Unique, BelongsToCard {
-        tag_id: string;
-        tagged_at: string;
+    export interface CardLabel extends Unique, BelongsToCard {
+        label_id: string;
+        labeled_at: string;
     }
 
-    export interface Card extends Unique, BelongsToChannel {
+    export interface Card extends Unique, BelongsToBoard {
         done: boolean;
         name: string;
         user: Author;
-        tags: CardTag[];
+        tags: CardLabel[];
         position: number;
         deadline: string | null;
         timestamp: string;
@@ -190,38 +202,13 @@ export namespace io {
         archived_at: string | null;
     }
 
-    export interface Column extends Unique, BelongsToChannel {
+    export interface Column extends Unique, BelongsToBoard {
         name: string;
         type: ColumnType;
         origin: boolean;
         capacity: number;
         position: number;
         archived_at: string | null;
-    }
-
-    export interface Membership extends Unique, BelongsToWorkspace {
-        user: User;
-        role_id: string;
-        joined_at: string;
-    }
-
-    export interface Member extends Unique, BelongsToChannel {
-        user: User;
-        role_id: string;
-        joined_at: string;
-        last_seen_at: string;
-        membership_id: string;
-    }
-
-    export interface Category extends Unique {
-        name: string;
-    }
-
-    export interface WorkspacePermissions {}
-
-    export interface WorkspaceRole extends Unique {
-        name: string;
-        permissions: WorkspacePermissions;
     }
 
     export interface UsersReaction {
@@ -235,16 +222,9 @@ export namespace io {
         owner_id: string;
         timestamp: string;
         description: string;
-        categories?: Category[];
     }
 
-    export interface UserWorkspace extends Workspace {
-        role: WorkspaceRole;
-        joined_at: string;
-        membership_id: string;
-    }
-
-    export interface ChannelPermissions {
+    export interface Permissions {
         add_reaction: boolean;
         create_card: boolean;
         delete_message: boolean;
@@ -266,61 +246,85 @@ export namespace io {
         use_markdown: boolean;
     }
 
-    export interface ChannelRole extends Unique, BelongsToChannel {
-        name: string;
-        is_default: boolean;
-    }
-
-    export interface ChannelMemberRole extends ChannelRole {
-        permissions: ChannelPermissions;
-    }
-
-    export interface Tag extends Unique, BelongsToChannel {
+    export interface Role extends Unique {
         name: string;
         color: string;
     }
 
-    export interface Channel extends Unique, BelongsToWorkspace {
+    export interface Auth {
+        user: User;
+        role: Role;
+        permissions: Permissions
+    }
+
+    export interface SpaceRole extends Unique, BelongsToSpace {
+        role_id: string;
+        permissions: Permissions
+    }
+
+    export interface Labels extends Unique, BelongsToBoard {
+        name: string;
+        color: string;
+        created_at: Timestamp;
+    }
+
+    export interface Board extends Unique, BelongsToSpace {
+        name: string;
+        created_at: Timestamp;
+    }
+
+    export interface Topic extends Unique, BelongsToSpace {
+        type: string;
+        name: string;
+        icon?: string;
+        created_at: Timestamp;
+    }
+
+    export interface Space extends Unique, BelongsToWorkspace {
         icon: string;
         name: string;
-        tags?: Tag[];
-        header: string;
         purpose: string;
-        admin_id: string;
-        is_board: boolean;
-        is_private: boolean;
-        is_archived: boolean;
-        main_thread_id: string;
+        type: "discucss" | "board";
+        access: "private" | "public" | "direct";
+        created_at: Timestamp;
     }
 
-    export interface UserChannel extends Channel {
-        permissions: ChannelPermissions;
-        member_id: string;
+    export interface BoardSpace extends Space {
+        board: Board 
+    }
+
+    export interface DiscussSpace extends Space {
+        topic: Topic
+    }
+
+    export interface Member extends Unique, BelongsToSpace {
+        user_id: string;
         joined_at: string;
+        member_id: string;
+        last_seen_at: Timestamp;
     }
 
-    export interface Thread extends Unique, BelongsToChannel {
+    export interface Thread extends Unique, BelongsToSpace {
         type: string;
-        topic: string;
+        name: string;
         message_count: number;
         last_message_id: string;
         first_message_id: string;
         unread_message_count: number;
+        created_at: Timestamp;
     }
 
-    export interface Message
-        extends Unique,
-            BelongsToThread,
-            BelongsToChannel,
-            Timestamped {
+    export interface Message extends Unique, BelongsToThread, Timestamped {
         author: Author;
         pinned: boolean;
         content: string;
-        flagged: boolean;
+        embedded: [],
+        attachement: any;
         reactions: UsersReaction[];
     }
 
     export interface UserMessage extends Message {
         flagged: boolean;
     }
+
 }
