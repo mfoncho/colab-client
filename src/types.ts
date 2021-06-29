@@ -6,6 +6,8 @@ export type ThreadType = "main" | "reply" | "card" | "topic" | "comment" | "emai
 
 export type SpaceType = "public" | "private" | "direct";
 
+export type Access = "public" | "private" | "direct";
+
 export type Id = string;
 
 export interface Unique {
