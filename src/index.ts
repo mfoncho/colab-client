@@ -892,7 +892,7 @@ class Client {
         return this.endpoint.patch(path, params, {cancelToken});
     }
 
-    labelCard(request: LabelCardRequest, cancelToken?: CancelToken): Response<io.CardLable> {
+    labelCard(request: LabelCardRequest, cancelToken?: CancelToken): Response<io.CardLabel> {
         const path = `/boards/${request.board_id}/cards/${request.card_id}/lebels/${request.label_id}`;
         return this.endpoint.put(path, {}, {cancelToken});
     }
