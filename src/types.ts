@@ -2,7 +2,7 @@ export interface Timestamp extends String {}
 
 export type ColumnType = "stack" | "queue";
 
-export type ThreadType = "main" | "reply" | "card";
+export type ThreadType = "main" | "reply" | "card" | "topic" | "comment" | "email";
 
 export type SpaceType = "public" | "private" | "direct";
 
