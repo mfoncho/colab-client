@@ -270,6 +270,7 @@ export namespace io {
 
     export interface Board extends Unique, BelongsToSpace {
         name: string;
+        icon: string;
         created_at: Timestamp;
     }
 
