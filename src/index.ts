@@ -280,11 +280,12 @@ export interface FetchColumnsRequest {
     board_id: string;
 }
 
-export interface CreateBoardSpaceRequest {
+export interface CreateSpaceRequest {
     name: string;
-    topics: any;
+    type: string;
+    topics: { name: string }[];
+    board?: any;
     purpose?: string;
-    board: any;
     access: "private" | "public";
 }
 
@@ -694,7 +695,7 @@ class Client {
     }
 
     createSpace(
-        request: CreateBoardSpaceRequest,
+        request: CreateSpaceRequest,
         cancelToken?: CancelToken
     ): Response<io.Space> {
         const path = `/spaces`;
