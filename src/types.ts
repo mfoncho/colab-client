@@ -175,7 +175,7 @@ export namespace io {
         timestamp: string;
     }
 
-    export interface Label extends Unique {
+    export interface Label extends Unique, BelongsToBoard {
         name: string;
         color: string;
     }
