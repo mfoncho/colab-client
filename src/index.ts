@@ -1164,7 +1164,7 @@ class Client {
         return this.endpoint.get(path, { cancelToken });
     }
 
-    createSpaceRoles(
+    createSpaceRole(
         request: CreateSpaceRoleRequest,
         cancelToken?: CancelToken
     ) {
