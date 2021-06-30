@@ -1168,7 +1168,7 @@ class Client {
     fetchSpaceRoles(
         request: FetchSpaceRolesRequest,
         cancelToken?: CancelToken
-    ) {
+    ): Response<io.SpaceRole[]> {
         const path = `/spaces/${request.space_id}/roles`;
         return this.endpoint.get(path, { cancelToken });
     }
@@ -1176,7 +1176,7 @@ class Client {
     createSpaceRole(
         request: CreateSpaceRoleRequest,
         cancelToken?: CancelToken
-    ) {
+    ): Response<io.SpaceRole> {
         const path = `/spaces/${request.space_id}/roles/${request.role_id}`;
         return this.endpoint.post(path, {}, { cancelToken });
     }
@@ -1184,7 +1184,7 @@ class Client {
     updateSpaceRolePermissions(
         request: UpdateSpaceRolePermissionsRequest,
         cancelToken?: CancelToken
-    ) {
+    ): Response<io.SpaceRole> {
         const path = `/spaces/${request.space_id}/roles/${request.role_id}`;
         const params = request.permissions;
         return this.endpoint.patch(path, params, { cancelToken });
@@ -1193,7 +1193,7 @@ class Client {
     deleteSpaceRole(
         request: DeleteSpaceRoleRequest,
         cancelToken?: CancelToken
-    ) {
+    ): Response<string | null> {
         const path = `/spaces/${request.space_id}/roles/${request.role_id}`;
         return this.endpoint.delete(path, { cancelToken });
     }
