@@ -2,13 +2,19 @@ export interface Timestamp extends String {}
 
 export type ColumnType = "stack" | "queue";
 
-export type ThreadType = "main" | "reply" | "card" | "topic" | "comment" | "email";
+export type ThreadType =
+    | "main"
+    | "reply"
+    | "card"
+    | "topic"
+    | "comment"
+    | "email";
 
-export type SpaceType = "board" | "discuss";
+export type SpaceType = "board" | "discuss" | "direct";
 
-export type Access = "public" | "private" | "direct";
+export type Access = "public" | "private";
 
-export type AccessType = Access
+export type AccessType = Access;
 
 export type Id = string;
 
@@ -94,7 +100,7 @@ export namespace io {
 
     export interface Config {
         locale: string;
-        lpack: { [key: string] : string},
+        lpack: { [key: string]: string };
         user_invitation: boolean;
         user_registration: boolean;
         admin_api_version: string;
@@ -260,7 +266,7 @@ export namespace io {
 
     export interface SpaceRole extends Unique, BelongsToSpace {
         role_id: string;
-        permissions: Permissions
+        permissions: Permissions;
     }
 
     export interface Labels extends Unique, BelongsToBoard {
@@ -292,11 +298,11 @@ export namespace io {
     }
 
     export interface BoardSpace extends Space {
-        board: Board 
+        board: Board;
     }
 
     export interface DiscussSpace extends Space {
-        topic: Topic
+        topic: Topic;
     }
 
     export interface Member extends Unique, BelongsToSpace {
@@ -319,7 +325,7 @@ export namespace io {
         author: Author;
         pinned: boolean;
         content: string;
-        embedded: [],
+        embedded: [];
         attachement: any;
         reactions: UsersReaction[];
     }
@@ -327,5 +333,4 @@ export namespace io {
     export interface UserMessage extends Message {
         flagged: boolean;
     }
-
 }
