@@ -248,11 +248,14 @@ export namespace io {
         color: string;
     }
 
+    export interface UserRole extends Role {
+        permissions: Permissions;
+    }
+
     export interface Auth {
         user: User;
-        role: Role;
+        role: UserRole;
         token: string;
-        permissions: Permissions
     }
 
     export interface SpaceRole extends Unique, BelongsToSpace {
@@ -297,9 +300,8 @@ export namespace io {
     }
 
     export interface Member extends Unique, BelongsToSpace {
-        user_id: string;
+        user: Author;
         joined_at: string;
-        member_id: string;
         last_seen_at: Timestamp;
     }
 
