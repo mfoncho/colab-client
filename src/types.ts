@@ -291,7 +291,7 @@ export namespace io {
         name: string;
         purpose: string;
         type: SpaceType;
-        access: Access;
+        access: AccessType;
         created_at: Timestamp;
     }
 
