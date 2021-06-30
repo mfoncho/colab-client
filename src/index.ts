@@ -284,7 +284,15 @@ export interface CreateSpaceRequest {
     name: string;
     type: string;
     topics: { name: string }[];
-    board?: any;
+    board?: {
+        name: string;
+        columns: {
+            name: string;
+            type: string;
+            origin: boolean;
+            capacity: number;
+        }[];
+    };
     purpose?: string;
     access: "private" | "public";
 }
