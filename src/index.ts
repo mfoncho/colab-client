@@ -1,14 +1,45 @@
 export * from "./types";
 export { Presence } from "./socket";
 export { default as socket } from "./socket";
-export { default as endpoint, Endpoint, Response, CancelToken, CancelTokenSource } from "./endpoint";
+export {
+    default as endpoint,
+    Endpoint,
+    Response,
+    CancelToken,
+    CancelTokenSource,
+} from "./endpoint";
 import { io } from "./types";
-import endpoint, { Endpoint, Response, CancelToken, CancelTokenSource } from "./endpoint";
+import endpoint, {
+    Endpoint,
+    Response,
+    CancelToken,
+    CancelTokenSource,
+} from "./endpoint";
 
 export type UpdatePreferencesRequest = Partial<io.Preferences>;
 
 export interface FetchSpacesRequest {
     archived?: boolean;
+}
+
+export interface CreateSpaceRoleRequest {
+    space_id: string;
+    role_id: string;
+}
+
+export interface UpdateSpaceRolePermissionsRequest {
+    space_id: string;
+    role_id: string;
+    permissions: any;
+}
+
+export interface DeleteSpaceRoleRequest {
+    space_id: string;
+    role_id: string;
+}
+
+export interface FetchSpaceRolesRequest {
+    space_id: string;
 }
 
 export interface CompleteTaskRequest {
@@ -251,15 +282,15 @@ export interface FetchColumnsRequest {
 
 export interface CreateBoardSpaceRequest {
     name: string;
-    topics: any,
+    topics: any;
     purpose?: string;
-    board: any,
+    board: any;
     access: "private" | "public";
 }
 
 export interface CreateDiscussSpaceRequest {
     name: string;
-    topics: any,
+    topics: any;
     purpose?: string;
     access: "private" | "public";
 }
@@ -392,23 +423,22 @@ export interface DeleteInvitationRequest {
     invitation_id: string;
 }
 
-export interface CreateLabelRequest{
+export interface CreateLabelRequest {
     board_id: string;
     name: string;
     color: string;
 }
 
-export interface DeleteLabelRequest{
+export interface DeleteLabelRequest {
     board_id: string;
     label_id: string;
 }
 
-export interface UpdateLabelRequest{
+export interface UpdateLabelRequest {
     board_id: string;
     label_id: string;
     name: string;
 }
-
 
 export interface Interceptor {
     request?: any;
@@ -425,11 +455,11 @@ class Client {
         this.endpoint = endpoint;
     }
 
-    static create(endpoint: Endpoint){
+    static create(endpoint: Endpoint) {
         return new Client(endpoint);
     }
 
-    setEndpoint(endpoint: Endpoint){
+    setEndpoint(endpoint: Endpoint) {
         this.endpoint = endpoint;
     }
 
@@ -450,60 +480,75 @@ class Client {
     }
 
     getConfig(cancelToken?: CancelToken): Response<io.Config> {
-        return this.endpoint.get(`/config`, {cancelToken});
+        return this.endpoint.get(`/config`, { cancelToken });
     }
 
     getSite(cancelToken?: CancelToken): Response<io.Site> {
-        return this.endpoint.get(`/site`, {cancelToken});
+        return this.endpoint.get(`/site`, { cancelToken });
     }
 
-    fetchTemplates(cancelToken?: CancelToken): Response<(io.BoardTemplate|io.DiscussSpace)[]>{
-        return this.endpoint.get(`/templates`, {cancelToken});
+    fetchTemplates(
+        cancelToken?: CancelToken
+    ): Response<(io.BoardTemplate | io.DiscussSpace)[]> {
+        return this.endpoint.get(`/templates`, { cancelToken });
     }
 
     getWorkspace(cancelToken?: CancelToken): Response<io.Workspace> {
-        return this.endpoint.get(`/workspace`, {cancelToken});
+        return this.endpoint.get(`/workspace`, { cancelToken });
     }
 
-    fetchSpaces(request: FetchSpacesRequest, cancelToken?: CancelToken): Response<io.Space[]> {
-        return this.endpoint.get(`/spaces`, {cancelToken, params: request });
+    fetchSpaces(
+        request: FetchSpacesRequest,
+        cancelToken?: CancelToken
+    ): Response<io.Space[]> {
+        return this.endpoint.get(`/spaces`, { cancelToken, params: request });
     }
 
     fetchSpaceInvitations(
-        request: FetchSpaceInvitations
-    , cancelToken?: CancelToken): Response<io.Invitation[]> {
-        return this.endpoint.get(`/spaces/${request.space_id}/invitations`, {cancelToken});
+        request: FetchSpaceInvitations,
+        cancelToken?: CancelToken
+    ): Response<io.Invitation[]> {
+        return this.endpoint.get(`/spaces/${request.space_id}/invitations`, {
+            cancelToken,
+        });
     }
 
-    deleteInvitation(request: DeleteInvitationRequest, cancelToken?: CancelToken): Response<any> {
+    deleteInvitation(
+        request: DeleteInvitationRequest,
+        cancelToken?: CancelToken
+    ): Response<any> {
         return this.endpoint.delete(
-            `/spaces/${request.space_id}/invitations/${request.invitation_id}`
-        , {cancelToken});
+            `/spaces/${request.space_id}/invitations/${request.invitation_id}`,
+            { cancelToken }
+        );
     }
 
     sendInvitations(
-        request: SendInvitationsRequest
-    , cancelToken?: CancelToken): Response<io.Invitation[]> {
+        request: SendInvitationsRequest,
+        cancelToken?: CancelToken
+    ): Response<io.Invitation[]> {
         return this.endpoint.post(
             `/spaces/${request.space_id}/invitations`,
             {
                 emails: request.emails,
-            }
-        , {cancelToken});
+            },
+            { cancelToken }
+        );
     }
 
     getPreferences(cancelToken?: CancelToken): Response<io.Preferences> {
-        return this.endpoint.get("/preferences", {cancelToken});
+        return this.endpoint.get("/preferences", { cancelToken });
     }
 
     updatePreferences(
-        payload: UpdatePreferencesRequest
-    , cancelToken?: CancelToken): Response<io.Preferences> {
-        return this.endpoint.patch("/preferences", payload, {cancelToken});
+        payload: UpdatePreferencesRequest,
+        cancelToken?: CancelToken
+    ): Response<io.Preferences> {
+        return this.endpoint.patch("/preferences", payload, { cancelToken });
     }
 
     getAuth(cancelToken?: CancelToken): Response<io.Auth> {
-        return this.endpoint.get("/auth", {cancelToken});
+        return this.endpoint.get("/auth", { cancelToken });
     }
 
     login(params: LoginRequest): Response<io.Auth> {
@@ -511,44 +556,56 @@ class Client {
     }
 
     logout(): Response<any> {
-        return this.endpoint.post("/auth/logout")
+        return this.endpoint.post("/auth/logout");
     }
 
-    updateUserProfile({
-        user_id,
-        ...params
-    }: UpdateUserProfileRequest, cancelToken?: CancelToken): Response<io.User> {
-        return this.endpoint.patch(`/users/${user_id}`, params, {cancelToken});
+    updateUserProfile(
+        { user_id, ...params }: UpdateUserProfileRequest,
+        cancelToken?: CancelToken
+    ): Response<io.User> {
+        return this.endpoint.patch(`/users/${user_id}`, params, {
+            cancelToken,
+        });
     }
 
-    setUserPresence(request: SetUserPresenceRequest, cancelToken?: CancelToken): Response<any> {
+    setUserPresence(
+        request: SetUserPresenceRequest,
+        cancelToken?: CancelToken
+    ): Response<any> {
         const path = `/user/presence/${request.presence}`;
-        return this.endpoint.post(path, {cancelToken});
+        return this.endpoint.post(path, { cancelToken });
     }
 
-    setUserStatus(request: SetUserStatusRequest, cancelToken?: CancelToken): Response<io.User> {
+    setUserStatus(
+        request: SetUserStatusRequest,
+        cancelToken?: CancelToken
+    ): Response<io.User> {
         const path = `/user/status/${request.status_id}`;
-        return this.endpoint.post(path, {cancelToken});
+        return this.endpoint.post(path, { cancelToken });
     }
 
     fetchStatuses(cancelToken?: CancelToken): Response<io.Status[]> {
         const path = `/statuses/`;
-        return this.endpoint.get(path, {cancelToken});
+        return this.endpoint.get(path, { cancelToken });
     }
 
     fetchThreads(cancelToken?: CancelToken): Response<io.Thread[]> {
         const path = `/threads`;
-        return this.endpoint.get(path, {cancelToken});
+        return this.endpoint.get(path, { cancelToken });
     }
 
     fetchSpaceTopics(
-        request: FetchSpaceTopicsRequest
-    , cancelToken?: CancelToken): Response<io.Thread[]> {
+        request: FetchSpaceTopicsRequest,
+        cancelToken?: CancelToken
+    ): Response<io.Thread[]> {
         const path = `/spaces/${request.space_id}/topics`;
-        return this.endpoint.get(path, {cancelToken});
+        return this.endpoint.get(path, { cancelToken });
     }
 
-    fetchMessages(request: FetchMessagesRequest, cancelToken?: CancelToken): Response<io.Message[]> {
+    fetchMessages(
+        request: FetchMessagesRequest,
+        cancelToken?: CancelToken
+    ): Response<io.Message[]> {
         const { thread_id, params } = request;
         const path = `/threads/${thread_id}/messages`;
         return this.endpoint.get(path, { params, cancelToken });
@@ -556,89 +613,131 @@ class Client {
 
     fetchArchivedSpaces(cancelToken?: CancelToken): Response<io.Space[]> {
         const path = `/archived`;
-        return this.endpoint.get(path, {cancelToken});
+        return this.endpoint.get(path, { cancelToken });
     }
 
     fetchPublicSpaces(cancelToken?: CancelToken): Response<io.Space[]> {
         const path = `/joinable`;
-        return this.endpoint.get(path, {cancelToken});
+        return this.endpoint.get(path, { cancelToken });
     }
 
-    createTopic(request: CreateTopicRequest, cancelToken?: CancelToken): Response<io.Thread> {
+    createTopic(
+        request: CreateTopicRequest,
+        cancelToken?: CancelToken
+    ): Response<io.Thread> {
         const path = `/spaces/${request.space_id}/topics`;
         const params = {
             topic: request.topic,
         };
-        return this.endpoint.post(path, params, {cancelToken});
+        return this.endpoint.post(path, params, { cancelToken });
     }
 
-    updateTopic(request: UpdateTopicRequest, cancelToken?: CancelToken): Response<io.Thread> {
+    updateTopic(
+        request: UpdateTopicRequest,
+        cancelToken?: CancelToken
+    ): Response<io.Thread> {
         const path = `/topics/${request.thread_id}`;
         const params = {
             is_active: request.is_active,
             is_default: request.is_default,
             topic: request.topic,
         };
-        return this.endpoint.patch(path, params, {cancelToken});
+        return this.endpoint.patch(path, params, { cancelToken });
     }
 
-    deleteTopic(request: DeleteTopicRequest, cancelToken?: CancelToken): Response<any> {
+    deleteTopic(
+        request: DeleteTopicRequest,
+        cancelToken?: CancelToken
+    ): Response<any> {
         const path = `/topics/${request.thread_id}`;
-        return this.endpoint.delete(path, {cancelToken});
+        return this.endpoint.delete(path, { cancelToken });
     }
 
-    getSpace(request: GetSpaceRequest, cancelToken?: CancelToken): Response<io.Space> {
+    getSpace(
+        request: GetSpaceRequest,
+        cancelToken?: CancelToken
+    ): Response<io.Space> {
         const path = `/spaces/${request.space_id}`;
-        return this.endpoint.get(path, {cancelToken});
+        return this.endpoint.get(path, { cancelToken });
     }
 
-    archiveSpace(request: ArchiveSpaceRequest, cancelToken?: CancelToken): Response<io.Space> {
+    archiveSpace(
+        request: ArchiveSpaceRequest,
+        cancelToken?: CancelToken
+    ): Response<io.Space> {
         const path = `/spaces/${request.space_id}/archive`;
-        return this.endpoint.put(path, {cancelToken});
+        return this.endpoint.put(path, { cancelToken });
     }
 
-    unarchiveSpace(request: UnarchiveSpaceRequest, cancelToken?: CancelToken): Response<io.Space> {
+    unarchiveSpace(
+        request: UnarchiveSpaceRequest,
+        cancelToken?: CancelToken
+    ): Response<io.Space> {
         const path = `/spaces/${request.space_id}/unarchive`;
-        return this.endpoint.put(path, {cancelToken});
+        return this.endpoint.put(path, { cancelToken });
     }
 
-    reactMessage(request: ReactMessageRequest, cancelToken?: CancelToken): Response<io.Message> {
+    reactMessage(
+        request: ReactMessageRequest,
+        cancelToken?: CancelToken
+    ): Response<io.Message> {
         const path = `/threads/${request.thread_id}/messages/${request.message_id}/react/${request.name}`;
-        return this.endpoint.post(path, {cancelToken});
+        return this.endpoint.post(path, { cancelToken });
     }
 
-    unreactMessage(request: UnreactMessageRequest, cancelToken?: CancelToken): Response<io.Message> {
+    unreactMessage(
+        request: UnreactMessageRequest,
+        cancelToken?: CancelToken
+    ): Response<io.Message> {
         const path = `/threads/${request.thread_id}/messages/${request.message_id}/react/${request.name}`;
-        return this.endpoint.delete(path, {cancelToken});
+        return this.endpoint.delete(path, { cancelToken });
     }
 
-    createSpace(request: CreateBoardSpaceRequest, cancelToken?: CancelToken): Response<io.Space> {
+    createSpace(
+        request: CreateBoardSpaceRequest,
+        cancelToken?: CancelToken
+    ): Response<io.Space> {
         const path = `/spaces`;
-        return this.endpoint.post(path, request, {cancelToken});
+        return this.endpoint.post(path, request, { cancelToken });
     }
 
-    loadThread(request: LoadThreadRequest, cancelToken?: CancelToken): Response<io.Thread> {
+    loadThread(
+        request: LoadThreadRequest,
+        cancelToken?: CancelToken
+    ): Response<io.Thread> {
         const path = `/threads/${request.thread_id}`;
-        return this.endpoint.get(path, {cancelToken});
+        return this.endpoint.get(path, { cancelToken });
     }
 
-    joinSpace(request: JoinSpaceRequest, cancelToken?: CancelToken): Response<io.Space> {
+    joinSpace(
+        request: JoinSpaceRequest,
+        cancelToken?: CancelToken
+    ): Response<io.Space> {
         const path = `/spaces/${request.space_id}/join`;
-        return this.endpoint.post(path, {cancelToken});
+        return this.endpoint.post(path, { cancelToken });
     }
 
-    updateSpace(request: UpdateSpaceRequest, cancelToken?: CancelToken): Response<io.Space> {
+    updateSpace(
+        request: UpdateSpaceRequest,
+        cancelToken?: CancelToken
+    ): Response<io.Space> {
         const { space_id, ...params } = request;
         const path = `/spaces/${space_id}`;
-        return this.endpoint.patch(path, params, {cancelToken});
+        return this.endpoint.patch(path, params, { cancelToken });
     }
 
-    destroy(request: DestroySpaceRequest, cancelToken?: CancelToken): Response<any> {
+    destroy(
+        request: DestroySpaceRequest,
+        cancelToken?: CancelToken
+    ): Response<any> {
         const path = `/spaces/${request.space_id}`;
-        return this.endpoint.delete(path, {cancelToken});
+        return this.endpoint.delete(path, { cancelToken });
     }
 
-    postMessage(request: PostMessageRequest, cancelToken?: CancelToken): Response<io.Message> {
+    postMessage(
+        request: PostMessageRequest,
+        cancelToken?: CancelToken
+    ): Response<io.Message> {
         const path = `/threads/${request.thread_id}/messages`;
         const params = new FormData();
         params.append("text", request.content);
@@ -649,106 +748,142 @@ class Client {
         if (request.markdown == true || request.markdown == false) {
             params.append("markdown", request.markdown ? "1" : "0");
         }
-        return this.endpoint.post(path, params, {cancelToken});
+        return this.endpoint.post(path, params, { cancelToken });
     }
 
     fetchRoles(cancelToken?: CancelToken): Response<io.Role[]> {
         const path = `/roles`;
-        return this.endpoint.get(path, {cancelToken});
+        return this.endpoint.get(path, { cancelToken });
     }
 
     fetchSpaceMembers(
-        request: FetchSpaceMembersRequest
-    , cancelToken?: CancelToken): Response<io.Member[]> {
+        request: FetchSpaceMembersRequest,
+        cancelToken?: CancelToken
+    ): Response<io.Member[]> {
         const path = `/spaces/${request.space_id}/members`;
-        return this.endpoint.get(path, {cancelToken});
+        return this.endpoint.get(path, { cancelToken });
     }
 
-    pinMessage(request: PinMessageRequest, cancelToken?: CancelToken): Response<io.Message> {
+    pinMessage(
+        request: PinMessageRequest,
+        cancelToken?: CancelToken
+    ): Response<io.Message> {
         const path = `/threads/${request.thread_id}/messages/${request.message_id}/pin`;
-        return this.endpoint.put(path, {cancelToken});
+        return this.endpoint.put(path, { cancelToken });
     }
 
-    unpinMessage(request: UnpinMessageRequest, cancelToken?: CancelToken): Response<io.Message> {
+    unpinMessage(
+        request: UnpinMessageRequest,
+        cancelToken?: CancelToken
+    ): Response<io.Message> {
         const path = `/threads/${request.thread_id}/messages/${request.message_id}/pin`;
-        return this.endpoint.delete(path, {cancelToken});
+        return this.endpoint.delete(path, { cancelToken });
     }
 
-    flagMessage(request: FlagMessageRequest, cancelToken?: CancelToken): Response<io.Message> {
+    flagMessage(
+        request: FlagMessageRequest,
+        cancelToken?: CancelToken
+    ): Response<io.Message> {
         const path = `/threads/${request.thread_id}/messages/${request.message_id}/flag`;
-        return this.endpoint.put(path, {cancelToken});
+        return this.endpoint.put(path, { cancelToken });
     }
 
-    unflagMessage(request: UnflagMessageRequest, cancelToken?: CancelToken): Response<io.Message> {
+    unflagMessage(
+        request: UnflagMessageRequest,
+        cancelToken?: CancelToken
+    ): Response<io.Message> {
         const path = `/threads/${request.thread_id}/messages/${request.message_id}/flag`;
-        return this.endpoint.delete(path, {cancelToken});
+        return this.endpoint.delete(path, { cancelToken });
     }
 
-    createSpaceMember(request: CreateMemberRequest, cancelToken?: CancelToken): Response<io.Member> {
+    createSpaceMember(
+        request: CreateMemberRequest,
+        cancelToken?: CancelToken
+    ): Response<io.Member> {
         const path = `/spaces/${request.space_id}/users/${request.user_id}`;
-        return this.endpoint.post(path, {}, {cancelToken});
+        return this.endpoint.post(path, {}, { cancelToken });
     }
 
-    deleteSpaceMember(request: DeleteMemberRequest, cancelToken?: CancelToken): Response<any> {
+    deleteSpaceMember(
+        request: DeleteMemberRequest,
+        cancelToken?: CancelToken
+    ): Response<any> {
         const path = `/spaces/${request.space_id}/members/${request.member_id}`;
-        return this.endpoint.delete(path, {cancelToken});
+        return this.endpoint.delete(path, { cancelToken });
     }
 
-    deleteMessage(request: DeleteMessageRequest, cancelToken?: CancelToken): Response<any> {
+    deleteMessage(
+        request: DeleteMessageRequest,
+        cancelToken?: CancelToken
+    ): Response<any> {
         const path = `/threads/${request.thread_id}/messages/${request.message_id}`;
-        return this.endpoint.delete(path, {cancelToken});
+        return this.endpoint.delete(path, { cancelToken });
     }
 
-    updateMessage(request: UpdateMessageRequest, cancelToken?: CancelToken): Response<io.Message> {
+    updateMessage(
+        request: UpdateMessageRequest,
+        cancelToken?: CancelToken
+    ): Response<io.Message> {
         const path = `/threads/${request.thread_id}/messages/${request.message_id}`;
         const params = {
             content: request.content,
             markdown: request.markdown,
         };
-        return this.endpoint.patch(path, params, {cancelToken});
+        return this.endpoint.patch(path, params, { cancelToken });
     }
 
     fetchArchivedCards(
-        request: FetchArchivedCardsRequest
-    , cancelToken?: CancelToken): Response<io.Card[]> {
+        request: FetchArchivedCardsRequest,
+        cancelToken?: CancelToken
+    ): Response<io.Card[]> {
         const path = `/boards/${request.board_id}/cards?archived`;
-        return this.endpoint.get(path, {cancelToken});
+        return this.endpoint.get(path, { cancelToken });
     }
 
     fetchArchivedColumns(
-        request: FetchArchivedColumnsRequest
-    , cancelToken?: CancelToken): Response<io.Column[]> {
+        request: FetchArchivedColumnsRequest,
+        cancelToken?: CancelToken
+    ): Response<io.Column[]> {
         const path = `/boards/${request.board_id}/columns?archived`;
-        return this.endpoint.get(path, {cancelToken});
+        return this.endpoint.get(path, { cancelToken });
     }
 
     getSpacePermissions(
-        request: GetSpacePermissionsRequest
-    , cancelToken?: CancelToken): Response<io.Permissions> {
+        request: GetSpacePermissionsRequest,
+        cancelToken?: CancelToken
+    ): Response<io.Permissions> {
         const path = `/spaces/${request.space_id}/roles/${request.role_id}/permissions`;
-        return this.endpoint.get(path, {cancelToken});
+        return this.endpoint.get(path, { cancelToken });
     }
 
-    deleteRole(params: DeleteSpaceRoleRequest, cancelToken?: CancelToken): Response<any> {
+    deleteRole(
+        params: DeleteSpaceRoleRequest,
+        cancelToken?: CancelToken
+    ): Response<any> {
         const path = `/spaces/${params.space_id}/roles/${params.role_id}`;
-        return this.endpoint.delete(path, {cancelToken});
+        return this.endpoint.delete(path, { cancelToken });
     }
 
-    updatePermissions({
-        space_id,
-        role_id,
-        ...params
-    }: UpdateSpacePermissionsRequest, cancelToken?: CancelToken): Response<io.Permissions> {
+    updatePermissions(
+        { space_id, role_id, ...params }: UpdateSpacePermissionsRequest,
+        cancelToken?: CancelToken
+    ): Response<io.Permissions> {
         const path = `/spaces/${space_id}/roles/${role_id}/permissions`;
-        return this.endpoint.patch(path, params, {cancelToken});
+        return this.endpoint.patch(path, params, { cancelToken });
     }
 
-    fetchColumns(request: FetchColumnsRequest, cancelToken?: CancelToken): Response<io.Column[]> {
+    fetchColumns(
+        request: FetchColumnsRequest,
+        cancelToken?: CancelToken
+    ): Response<io.Column[]> {
         const path = `/boards/${request.board_id}/columns`;
-        return this.endpoint.get(path, {cancelToken});
+        return this.endpoint.get(path, { cancelToken });
     }
 
-    createColumn(request: CreateColumnRequest, cancelToken?: CancelToken): Response<io.Column> {
+    createColumn(
+        request: CreateColumnRequest,
+        cancelToken?: CancelToken
+    ): Response<io.Column> {
         const path = `/boards/${request.board_id}/columns`;
         const params = {
             name: request.name,
@@ -756,20 +891,29 @@ class Client {
             origin: request.origin,
             capacity: request.capacity,
         };
-        return this.endpoint.post(path, params, {cancelToken});
+        return this.endpoint.post(path, params, { cancelToken });
     }
 
-    archiveColumn(request: ArchiveColumnRequest, cancelToken?: CancelToken): Response<io.Column> {
+    archiveColumn(
+        request: ArchiveColumnRequest,
+        cancelToken?: CancelToken
+    ): Response<io.Column> {
         const path = `/boards/${request.board_id}/columns/${request.column_id}/archive`;
-        return this.endpoint.post(path, {cancelToken});
+        return this.endpoint.post(path, { cancelToken });
     }
 
-    unarchiveColumn(request: ArchiveColumnRequest, cancelToken?: CancelToken): Response<io.Column> {
+    unarchiveColumn(
+        request: ArchiveColumnRequest,
+        cancelToken?: CancelToken
+    ): Response<io.Column> {
         const path = `/boards/${request.board_id}/columns/${request.column_id}/unarchive`;
-        return this.endpoint.post(path, {cancelToken});
+        return this.endpoint.post(path, { cancelToken });
     }
 
-    updateColumn(request: UpdateColumnRequest, cancelToken?: CancelToken): Response<io.Column> {
+    updateColumn(
+        request: UpdateColumnRequest,
+        cancelToken?: CancelToken
+    ): Response<io.Column> {
         const path = `/boards/${request.board_id}/columns/${request.column_id}`;
         const params = {
             name: request.name,
@@ -777,168 +921,272 @@ class Client {
             origin: request.origin,
             capacity: request.capacity,
         };
-        return this.endpoint.patch(path, params, {cancelToken});
+        return this.endpoint.patch(path, params, { cancelToken });
     }
 
-    moveColumn(request: MoveColumnRequest, cancelToken?: CancelToken): Response<io.Column> {
+    moveColumn(
+        request: MoveColumnRequest,
+        cancelToken?: CancelToken
+    ): Response<io.Column> {
         const path = `/boards/${request.board_id}/columns/${request.column_id}/move`;
         const params = {
             position: request.position,
         };
-        return this.endpoint.put(path, params, {cancelToken});
+        return this.endpoint.put(path, params, { cancelToken });
     }
 
-    deleteColumn(request: DeleteColumnRequest, cancelToken?: CancelToken): Response<any> {
+    deleteColumn(
+        request: DeleteColumnRequest,
+        cancelToken?: CancelToken
+    ): Response<any> {
         const path = `/boards/${request.board_id}/columns/${request.column_id}`;
-        return this.endpoint.delete(path, {cancelToken});
+        return this.endpoint.delete(path, { cancelToken });
     }
 
-    createChecklist(request: CreateChecklistRequest, cancelToken?: CancelToken): Response<io.Checklist> {
+    createChecklist(
+        request: CreateChecklistRequest,
+        cancelToken?: CancelToken
+    ): Response<io.Checklist> {
         const path = `/boards/${request.board_id}/cards/${request.card_id}/checklists`;
         const params = {
             name: request.name,
             member_id: request.member_id,
         };
-        return this.endpoint.post(path, params, {cancelToken});
+        return this.endpoint.post(path, params, { cancelToken });
     }
 
-    updateChecklist(request: UpdateChecklistRequest, cancelToken?: CancelToken): Response<io.Checklist> {
+    updateChecklist(
+        request: UpdateChecklistRequest,
+        cancelToken?: CancelToken
+    ): Response<io.Checklist> {
         const path = `/boards/${request.board_id}/checklists/${request.checklist_id}`;
         const params = {
             name: request.name,
         };
-        return this.endpoint.patch(path, params, {cancelToken});
+        return this.endpoint.patch(path, params, { cancelToken });
     }
 
-    reassignChecklist(request: ReassignChecklistRequest, cancelToken?: CancelToken): Response<io.Checklist> {
+    reassignChecklist(
+        request: ReassignChecklistRequest,
+        cancelToken?: CancelToken
+    ): Response<io.Checklist> {
         const path = `/boards/${request.board_id}/checklists/${request.checklist_id}/user/${request.user_id}`;
-        return this.endpoint.put(path, {}, {cancelToken});
+        return this.endpoint.put(path, {}, { cancelToken });
     }
 
-
-    deleteChecklist(request: DeleteChecklistRequest, cancelToken?: CancelToken): Response<any> {
+    deleteChecklist(
+        request: DeleteChecklistRequest,
+        cancelToken?: CancelToken
+    ): Response<any> {
         const path = `/boards/${request.board_id}/checklists/${request.checklist_id}`;
-        return this.endpoint.delete(path, {cancelToken});
+        return this.endpoint.delete(path, { cancelToken });
     }
 
-    createTask(request: CreateTaskRequest, cancelToken?: CancelToken): Response<io.Task> {
+    createTask(
+        request: CreateTaskRequest,
+        cancelToken?: CancelToken
+    ): Response<io.Task> {
         const path = `/boards/${request.board_id}/checklists/${request.checklist_id}/tasks`;
         const params = { name: request.name };
-        return this.endpoint.post(path, params, {cancelToken});
+        return this.endpoint.post(path, params, { cancelToken });
     }
 
-    updateTask(request: UpdateTaskRequest, cancelToken?: CancelToken): Response<io.Task> {
+    updateTask(
+        request: UpdateTaskRequest,
+        cancelToken?: CancelToken
+    ): Response<io.Task> {
         const path = `/boards/${request.board_id}/tasks/${request.task_id}`;
         const params = { name: request.name };
-        return this.endpoint.patch(path, params, {cancelToken});
+        return this.endpoint.patch(path, params, { cancelToken });
     }
 
-    completeTask(request: CompleteTaskRequest, cancelToken?: CancelToken): Response<io.Task> {
+    completeTask(
+        request: CompleteTaskRequest,
+        cancelToken?: CancelToken
+    ): Response<io.Task> {
         const path = `/boards/${request.board_id}/tasks/${request.task_id}/complete`;
-        return this.endpoint.put(path, {cancelToken});
+        return this.endpoint.put(path, { cancelToken });
     }
 
-    uncompleteTask(request: UncompleteTaskRequest, cancelToken?: CancelToken): Response<io.Task> {
+    uncompleteTask(
+        request: UncompleteTaskRequest,
+        cancelToken?: CancelToken
+    ): Response<io.Task> {
         const path = `/boards/${request.board_id}/tasks/${request.task_id}/uncomplete`;
-        return this.endpoint.put(path, {cancelToken});
+        return this.endpoint.put(path, { cancelToken });
     }
 
-    deleteTask(request: DeleteTaskRequest, cancelToken?: CancelToken): Response<any> {
+    deleteTask(
+        request: DeleteTaskRequest,
+        cancelToken?: CancelToken
+    ): Response<any> {
         const path = `/boards/${request.board_id}/tasks/${request.task_id}`;
-        return this.endpoint.delete(path, {cancelToken});
+        return this.endpoint.delete(path, { cancelToken });
     }
 
-    fetchCards(request: FetchCardsRequest, cancelToken?: CancelToken): Response<io.Card[]> {
+    fetchCards(
+        request: FetchCardsRequest,
+        cancelToken?: CancelToken
+    ): Response<io.Card[]> {
         let url: string;
         if (request.column_id != null) {
             url = `/boards/${request.board_id}/columns/${request.column_id}/cards`;
         } else {
             url = `/boards/${request.board_id}/cards`;
         }
-        return this.endpoint.get(url, {cancelToken});
+        return this.endpoint.get(url, { cancelToken });
     }
 
-    createCard(payload: CreateCardRequest, cancelToken?: CancelToken): Response<io.Card> {
+    createCard(
+        payload: CreateCardRequest,
+        cancelToken?: CancelToken
+    ): Response<io.Card> {
         const params = {
             name: payload.name,
             description: payload.description,
         };
         const url = `/boards/${payload.board_id}/columns/${payload.column_id}/cards`;
-        return this.endpoint.post(url, params, {cancelToken});
+        return this.endpoint.post(url, params, { cancelToken });
     }
 
-    deleteCard(request: DeleteCardRequest, cancelToken?: CancelToken): Response<Partial<io.Card>> {
+    deleteCard(
+        request: DeleteCardRequest,
+        cancelToken?: CancelToken
+    ): Response<Partial<io.Card>> {
         const url = `/boards/${request.board_id}/cards/${request.card_id}`;
-        return this.endpoint.delete(url, {cancelToken});
+        return this.endpoint.delete(url, { cancelToken });
     }
 
-    archiveCard(request: ArchiveCardRequest, cancelToken?: CancelToken): Response<io.Card> {
+    archiveCard(
+        request: ArchiveCardRequest,
+        cancelToken?: CancelToken
+    ): Response<io.Card> {
         const url = `/boards/${request.board_id}/cards/${request.card_id}/archive`;
-        return this.endpoint.put(url, {cancelToken});
+        return this.endpoint.put(url, { cancelToken });
     }
 
     unarchiveCard(request: UnarchiveCardRequest, cancelToken?: CancelToken) {
         return this.moveCard(request, cancelToken);
     }
 
-    moveCard(request: MoveCardRequest, cancelToken?: CancelToken): Response<io.Card> {
+    moveCard(
+        request: MoveCardRequest,
+        cancelToken?: CancelToken
+    ): Response<io.Card> {
         const params = {
             position: request.position,
             column_id: request.column_id,
         };
         const path = `/boards/${request.board_id}/cards/${request.card_id}/move`;
-        return this.endpoint.put(path, params, {cancelToken});
+        return this.endpoint.put(path, params, { cancelToken });
     }
 
-    markCardAsDone(request: MarkCardAsDoneRequest, cancelToken?: CancelToken): Response<io.Card> {
+    markCardAsDone(
+        request: MarkCardAsDoneRequest,
+        cancelToken?: CancelToken
+    ): Response<io.Card> {
         const path = `/boards/${request.board_id}/cards/${request.card_id}/done`;
-        return this.endpoint.put(path, {cancelToken});
+        return this.endpoint.put(path, { cancelToken });
     }
 
-    markCardAsUndone(request: MarkCardAsUndoneRequest, cancelToken?: CancelToken): Response<io.Card> {
+    markCardAsUndone(
+        request: MarkCardAsUndoneRequest,
+        cancelToken?: CancelToken
+    ): Response<io.Card> {
         const path = `/boards/${request.board_id}/cards/${request.card_id}/undone`;
-        return this.endpoint.put(path, {cancelToken});
+        return this.endpoint.put(path, { cancelToken });
     }
 
-    updateCard(request: UpdateCardRequest, cancelToken?: CancelToken): Response<io.Card> {
+    updateCard(
+        request: UpdateCardRequest,
+        cancelToken?: CancelToken
+    ): Response<io.Card> {
         const path = `/boards/${request.board_id}/cards/${request.card_id}`;
         const params = {
             name: request.name,
             deadline: request.deadline,
             description: request.description,
         };
-        return this.endpoint.patch(path, params, {cancelToken});
+        return this.endpoint.patch(path, params, { cancelToken });
     }
 
-    createLabel(request: CreateLabelRequest, cancelToken?: CancelToken): Response<io.Label>{
+    createLabel(
+        request: CreateLabelRequest,
+        cancelToken?: CancelToken
+    ): Response<io.Label> {
         const path = `/boards/${request.board_id}/labels`;
         const params = {
             name: request.name,
         };
-        return this.endpoint.post(path, params, {cancelToken});
+        return this.endpoint.post(path, params, { cancelToken });
     }
 
-    updateLabel(request: UpdateLabelRequest, cancelToken?: CancelToken): Response<io.Label>{
+    updateLabel(
+        request: UpdateLabelRequest,
+        cancelToken?: CancelToken
+    ): Response<io.Label> {
         const path = `/boards/${request.board_id}/labels/${request.label_id}`;
         const params = {
             name: request.name,
         };
-        return this.endpoint.post(path, params, {cancelToken});
+        return this.endpoint.post(path, params, { cancelToken });
     }
 
-    deleteLabel(request: DeleteLabelRequest, cancelToken?: CancelToken): Response<io.Label>{
+    deleteLabel(
+        request: DeleteLabelRequest,
+        cancelToken?: CancelToken
+    ): Response<io.Label> {
         const path = `/boards/${request.board_id}/labels/${request.label_id}`;
-        return this.endpoint.delete(path, {cancelToken});
+        return this.endpoint.delete(path, { cancelToken });
     }
 
-    labelCard(request: LabelCardRequest, cancelToken?: CancelToken): Response<io.CardLabel> {
+    labelCard(
+        request: LabelCardRequest,
+        cancelToken?: CancelToken
+    ): Response<io.CardLabel> {
         const path = `/boards/${request.board_id}/cards/${request.card_id}/lebels/${request.label_id}`;
-        return this.endpoint.put(path, {}, {cancelToken});
+        return this.endpoint.put(path, {}, { cancelToken });
     }
 
-    unlabelCard(request: UnlabelCardRequest, cancelToken?: CancelToken): Response<string | null> {
+    unlabelCard(
+        request: UnlabelCardRequest,
+        cancelToken?: CancelToken
+    ): Response<string | null> {
         const path = `/boards/${request.board_id}/cards/${request.card_id}/leabels/${request.label_id}`;
-        return this.endpoint.delete(path, {cancelToken});
+        return this.endpoint.delete(path, { cancelToken });
+    }
+
+    fetchSpaceRoles(
+        request: FetchSpaceRolesRequest,
+        cancelToken?: CancelToken
+    ) {
+        const path = `/spaces/${request.space_id}/roles`;
+        return this.endpoint.get(path, { cancelToken });
+    }
+
+    createSpaceRoles(
+        request: CreateSpaceRoleRequest,
+        cancelToken?: CancelToken
+    ) {
+        const path = `/spaces/${request.space_id}/roles/${request.role_id}`;
+        return this.endpoint.post(path, {}, { cancelToken });
+    }
+
+    updateSpaceRolePermissions(
+        request: UpdateSpaceRolePermissionsRequest,
+        cancelToken?: CancelToken
+    ) {
+        const path = `/spaces/${request.space_id}/roles/${request.role_id}`;
+        const params = request.permissions;
+        return this.endpoint.patch(path, params, { cancelToken });
+    }
+
+    deleteSpaceRole(
+        request: DeleteSpaceRoleRequest,
+        cancelToken?: CancelToken
+    ) {
+        const path = `/spaces/${request.space_id}/roles/${request.role_id}`;
+        return this.endpoint.delete(path, { cancelToken });
     }
 }
 
