@@ -12,9 +12,7 @@ export type ThreadType =
 
 export type SpaceType = "board" | "discuss" | "direct";
 
-export type Access = "public" | "private";
-
-export type AccessType = Access;
+export type AccessType = "public" | "private";
 
 export type Id = string;
 
