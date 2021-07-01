@@ -260,6 +260,7 @@ export namespace io {
         user: User;
         role: UserRole;
         token: string;
+        preferences: Preferences;
     }
 
     export interface SpaceRole extends Unique, BelongsToSpace {
