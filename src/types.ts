@@ -252,14 +252,11 @@ export namespace io {
         color: string;
     }
 
-    export interface UserRole extends Role {
-        permissions: Permissions;
-    }
-
     export interface Auth {
         user: User;
-        role: UserRole;
+        roles: Role[];
         token: string;
+        permissions: Permissions;
         preferences: Preferences;
     }
 
