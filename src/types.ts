@@ -249,7 +249,7 @@ export namespace io {
 
     export interface Role extends Unique {
         name: string;
-        color: string;
+        icon: string;
     }
 
     export interface UserRole extends Role {
